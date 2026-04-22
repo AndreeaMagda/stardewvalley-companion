@@ -1,0 +1,5 @@
+{
+  "name": "stardew-app",
+  "private": true,
+  "workspaces": ["client", "shared"]
+}
