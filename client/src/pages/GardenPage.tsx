@@ -63,13 +63,26 @@ export default function GardenPage() {
 
   useEffect(() => { load() }, [])
 
+  const [addError, setAddError] = useState<string | null>(null)
+
   const addEntry = async () => {
+    setAddError(null)
     const { error } = await supabase.from('garden_entries').insert({
-      user_id: USER_ID, crop_id: newCropId,
-      planted_year: currentYear, season: currentSeason, day: currentDay,
-      notes: newNotes || null, harvested: false,
+      user_id: USER_ID,
+      crop_id: newCropId,
+      planted_year: currentYear,
+      season: currentSeason,
+      day: currentDay,
+      notes: newNotes || null,
+      harvested: false,
     })
-    if (!error) { setAdding(false); setNewNotes(''); load() }
+    if (error) {
+      setAddError(error.message)
+    } else {
+      setAdding(false)
+      setNewNotes('')
+      load()
+    }
   }
 
   const toggleHarvested = async (entry: GardenEntry) => {
@@ -274,11 +287,14 @@ export default function GardenPage() {
             <p className="text-xs text-muted mb-4">
               Planted on <span className={`font-medium capitalize px-1.5 py-0.5 rounded ${style.badge}`}>{currentSeason} {currentDay}</span>, Y{currentYear}
             </p>
+            {addError && (
+              <p className="text-xs text-fall bg-fall/10 rounded-lg px-3 py-2 mb-3">{addError}</p>
+            )}
             <div className="flex gap-3">
               <button onClick={addEntry} className={`${style.active} px-4 py-2 rounded-xl text-sm font-medium transition-colors`}>
                 Log planting
               </button>
-              <button onClick={() => setAdding(false)} className="text-muted text-sm hover:text-ink">Cancel</button>
+              <button onClick={() => { setAdding(false); setAddError(null) }} className="text-muted text-sm hover:text-ink">Cancel</button>
             </div>
           </div>
         </div>
@@ -295,7 +311,11 @@ export default function GardenPage() {
               </span>
             )}
             <button
-              onClick={() => setAdding(true)}
+              onClick={() => {
+                const first = CROPS.find((c) => c.seasons.includes(currentSeason))
+                if (first) setNewCropId(first.id)
+                setAdding(true)
+              }}
               className="text-xs text-muted hover:text-ink border border-parchment hover:border-brown rounded-lg px-3 py-1 transition-colors"
             >
               + Log plant
