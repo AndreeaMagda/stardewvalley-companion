@@ -37,6 +37,7 @@ export interface GardenEntry {
   user_id: string
   crop_id: string
   planted_date: string
+  planted_year: number
   season: Season
   day: number
   notes: string | null
