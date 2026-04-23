@@ -6,6 +6,7 @@ import ResourcesPage from './pages/ResourcesPage'
 import TipsPage from './pages/TipsPage'
 import BirthdaysPage from './pages/BirthdaysPage'
 import CalendarPage from './pages/CalendarPage'
+import BundlesPage from './pages/BundlesPage'
 
 const router = createBrowserRouter([
   {
@@ -15,10 +16,11 @@ const router = createBrowserRouter([
       { index: true, element: <Navigate to="/garden" replace /> },
       { path: 'garden',    element: <GardenPage /> },
       { path: 'crops',     element: <CropsPage /> },
+      { path: 'bundles',   element: <BundlesPage /> },
       { path: 'resources', element: <ResourcesPage /> },
-      { path: 'tips',      element: <TipsPage /> },
       { path: 'birthdays', element: <BirthdaysPage /> },
       { path: 'calendar',  element: <CalendarPage /> },
+      { path: 'tips',      element: <TipsPage /> },
     ],
   },
 ])

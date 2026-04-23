@@ -5,6 +5,7 @@ import type { Season } from '@shared'
 const NAV = [
   { to: '/garden',    label: 'Garden',    icon: '🌱' },
   { to: '/crops',     label: 'Crops',     icon: '🌾' },
+  { to: '/bundles',   label: 'Bundles',   icon: '🏛️' },
   { to: '/resources', label: 'Resources', icon: '🪵' },
   { to: '/birthdays', label: 'Birthdays', icon: '🎁' },
   { to: '/calendar',  label: 'Calendar',  icon: '📅' },
