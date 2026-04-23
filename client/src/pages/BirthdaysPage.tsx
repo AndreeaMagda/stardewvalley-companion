@@ -6,11 +6,11 @@ import { useAppStore } from '../store/useAppStore'
 
 const SEASON_TABS: Season[] = ['spring', 'summer', 'fall', 'winter']
 
-const SEASON_STYLE: Record<Season, { tab: string; dot: string }> = {
-  spring: { tab: 'bg-spring/10 text-spring border-spring/30', dot: 'bg-spring' },
-  summer: { tab: 'bg-summer/10 text-summer border-summer/30', dot: 'bg-summer' },
-  fall:   { tab: 'bg-fall/10 text-fall border-fall/30', dot: 'bg-fall' },
-  winter: { tab: 'bg-winter/10 text-winter border-winter/30', dot: 'bg-winter' },
+const SEASON_STYLE: Record<Season, { active: string; dot: string }> = {
+  spring: { active: 'bg-spring text-white',  dot: 'bg-spring' },
+  summer: { active: 'bg-summer text-white',  dot: 'bg-summer' },
+  fall:   { active: 'bg-fall text-white',    dot: 'bg-fall' },
+  winter: { active: 'bg-winter text-white',  dot: 'bg-winter' },
 }
 
 export default function BirthdaysPage() {
@@ -34,10 +34,7 @@ export default function BirthdaysPage() {
   const toggleGifted = async (name: string) => {
     const existing = gifted.find((g) => g.villager_name === name)
     if (existing) {
-      await supabase
-        .from('gifted_birthdays')
-        .update({ gifted: !existing.gifted })
-        .eq('id', existing.id)
+      await supabase.from('gifted_birthdays').update({ gifted: !existing.gifted }).eq('id', existing.id)
       setGifted((prev) => prev.map((g) => g.id === existing.id ? { ...g, gifted: !g.gifted } : g))
     } else {
       const { data } = await supabase
@@ -49,29 +46,33 @@ export default function BirthdaysPage() {
     }
   }
 
-  const seasonBirthdays = VILLAGER_BIRTHDAYS.filter((v) => v.season === activeSeason)
+  const seasonBirthdays = VILLAGER_BIRTHDAYS
+    .filter((v) => v.season === activeSeason)
     .sort((a, b) => a.day - b.day)
 
   const isToday = (v: typeof seasonBirthdays[number]) =>
     v.season === currentSeason && v.day === currentDay
 
+  const giftedCount = seasonBirthdays.filter((v) => isGifted(v.name)).length
+
   return (
     <div className="p-8 max-w-2xl">
-      <h2 className="text-2xl font-semibold text-ink mb-1">Birthdays</h2>
-      <p className="text-muted text-sm mb-6">
-        Year {currentYear} · mark gifts given
-      </p>
+
+      <div className="mb-7">
+        <h2 className="text-2xl font-semibold text-ink">Birthdays</h2>
+        <p className="text-muted text-sm mt-1">Year {currentYear} · gift everyone you can.</p>
+      </div>
 
       {/* Season tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-1 bg-cream-dark rounded-xl p-1 mb-6">
         {SEASON_TABS.map((s) => (
           <button
             key={s}
             onClick={() => setActiveSeason(s)}
-            className={`px-4 py-1.5 rounded-lg text-sm capitalize border transition-colors font-medium ${
+            className={`flex-1 py-1.5 rounded-lg text-sm capitalize font-medium transition-all ${
               activeSeason === s
-                ? SEASON_STYLE[s].tab + ' border-current'
-                : 'border-parchment text-muted hover:border-brown-light'
+                ? SEASON_STYLE[s].active
+                : 'text-muted hover:bg-parchment/60'
             }`}
           >
             {s}
@@ -79,52 +80,69 @@ export default function BirthdaysPage() {
         ))}
       </div>
 
+      {/* Progress */}
+      <div className="flex items-center justify-between mb-5">
+        <p className="text-xs text-muted">{giftedCount} of {seasonBirthdays.length} gifted</p>
+        <div className="h-1.5 w-32 bg-cream-dark rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all ${SEASON_STYLE[activeSeason].dot}`}
+            style={{ width: `${seasonBirthdays.length ? (giftedCount / seasonBirthdays.length) * 100 : 0}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Cards */}
       <div className="space-y-2">
         {seasonBirthdays.map((v) => {
           const gifted = isGifted(v.name)
           const today = isToday(v)
+
           return (
             <div
               key={v.name}
-              className={`flex items-center gap-4 bg-white border rounded-xl px-5 py-3 transition-all ${
+              className={`bg-white border rounded-2xl px-5 py-4 flex items-center gap-4 transition-all ${
                 today
-                  ? 'border-brown bg-brown-pale shadow-sm'
+                  ? 'border-brown bg-brown-pale'
                   : gifted
-                  ? 'opacity-50 border-parchment'
-                  : 'border-parchment hover:border-brown-light'
+                  ? 'border-parchment opacity-50'
+                  : 'border-parchment hover:border-brown-pale'
               }`}
+              style={{ boxShadow: today ? 'var(--shadow-card)' : undefined }}
             >
-              <span className="text-lg w-6 text-center">
-                {today ? '🎂' : '🎁'}
-              </span>
+              {/* Day badge */}
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm ${
+                today ? 'bg-brown text-cream' : 'bg-cream-dark text-muted'
+              }`}>
+                {v.day}
+              </div>
+
               <div className="flex-1 min-w-0">
-                <span className={`font-medium text-ink ${gifted ? 'line-through' : ''}`}>
-                  {v.name}
-                </span>
-                {today && (
-                  <span className="ml-2 text-xs bg-brown text-cream px-1.5 py-0.5 rounded font-medium">
-                    Today!
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  <p className={`font-medium text-ink text-sm ${gifted ? 'line-through' : ''}`}>
+                    {v.name}
+                  </p>
+                  {today && (
+                    <span className="text-[11px] bg-brown text-cream px-2 py-0.5 rounded-full font-medium">
+                      Today! 🎂
+                    </span>
+                  )}
+                </div>
                 {v.lovedGifts.length > 0 && (
                   <p className="text-xs text-muted mt-0.5 truncate">
-                    Loves: {v.lovedGifts.slice(0, 4).join(', ')}
-                    {v.lovedGifts.length > 4 ? '…' : ''}
+                    Loves: {v.lovedGifts.slice(0, 3).join(', ')}{v.lovedGifts.length > 3 ? '…' : ''}
                   </p>
                 )}
               </div>
-              <span className={`text-sm font-medium w-12 text-right ${SEASON_STYLE[v.season].tab.split(' ')[1]}`}>
-                Day {v.day}
-              </span>
+
               <button
                 onClick={() => toggleGifted(v.name)}
-                className={`ml-2 text-xs px-2 py-1 rounded border transition-colors ${
+                className={`text-xs px-3 py-1.5 rounded-xl border font-medium transition-all flex-shrink-0 ${
                   gifted
-                    ? 'border-green text-green bg-green-pale hover:bg-green-pale/70'
-                    : 'border-parchment text-muted hover:border-brown-light'
+                    ? 'border-green/40 text-green bg-green-pale'
+                    : 'border-parchment text-muted hover:border-brown'
                 }`}
               >
-                {gifted ? 'Gifted ✓' : 'Gift'}
+                {gifted ? '✓ Gifted' : 'Gift'}
               </button>
             </div>
           )
