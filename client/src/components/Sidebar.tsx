@@ -10,6 +10,7 @@ const NAV = [
   { to: '/birthdays', label: 'Birthdays', icon: '🎁' },
   { to: '/calendar',  label: 'Calendar',  icon: '📅' },
   { to: '/fish',      label: 'Fish',      icon: '🎣' },
+  { to: '/mining',    label: 'Mining',    icon: '⛏️' },
   { to: '/tips',      label: 'Tips',      icon: '💡' },
 ]
 

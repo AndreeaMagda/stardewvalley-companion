@@ -7,7 +7,7 @@ const NAV = [
   { to: '/birthdays', label: 'Birthdays', icon: '🎁' },
   { to: '/calendar',  label: 'Calendar',  icon: '📅' },
   { to: '/fish',      label: 'Fish',      icon: '🎣' },
-  { to: '/resources', label: 'Resources', icon: '🪵' },
+  { to: '/mining',    label: 'Mining',    icon: '⛏️' },
 ]
 
 export default function BottomNav() {

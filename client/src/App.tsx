@@ -8,6 +8,7 @@ import BirthdaysPage from './pages/BirthdaysPage'
 import CalendarPage from './pages/CalendarPage'
 import BundlesPage from './pages/BundlesPage'
 import FishPage from './pages/FishPage'
+import MiningPage from './pages/MiningPage'
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ const router = createBrowserRouter([
       { path: 'birthdays', element: <BirthdaysPage /> },
       { path: 'calendar',  element: <CalendarPage /> },
       { path: 'fish',      element: <FishPage /> },
+      { path: 'mining',    element: <MiningPage /> },
       { path: 'tips',      element: <TipsPage /> },
     ],
   },
