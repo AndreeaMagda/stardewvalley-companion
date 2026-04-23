@@ -63,7 +63,7 @@ export default function BirthdaysPage() {
   )
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="p-4 md:p-8 max-w-2xl">
       <div className="mb-7">
         <h2 className="text-2xl font-semibold text-ink">Birthdays</h2>
         <p className="text-muted text-sm mt-1">Year {currentYear} · never miss a birthday gift.</p>

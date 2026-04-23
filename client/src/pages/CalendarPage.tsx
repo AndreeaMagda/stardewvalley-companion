@@ -34,7 +34,7 @@ export default function CalendarPage() {
     .slice(0, 3)
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 md:p-8 max-w-4xl">
       <div className="mb-7">
         <h2 className="text-2xl font-semibold text-ink">Calendar</h2>
         <p className="text-muted text-sm mt-1">Festivals, birthdays, and what's coming up.</p>

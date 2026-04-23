@@ -9,6 +9,7 @@ const NAV = [
   { to: '/resources', label: 'Resources', icon: '🪵' },
   { to: '/birthdays', label: 'Birthdays', icon: '🎁' },
   { to: '/calendar',  label: 'Calendar',  icon: '📅' },
+  { to: '/fish',      label: 'Fish',      icon: '🎣' },
   { to: '/tips',      label: 'Tips',      icon: '💡' },
 ]
 

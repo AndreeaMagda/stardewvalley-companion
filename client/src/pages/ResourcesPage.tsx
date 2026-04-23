@@ -100,7 +100,7 @@ export default function ResourcesPage() {
   }
 
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="p-4 md:p-8 max-w-3xl">
       <div className="flex items-start justify-between mb-7">
         <div>
           <h2 className="text-2xl font-semibold text-ink">Resources</h2>

@@ -63,6 +63,14 @@ export interface GiftedBirthday {
   created_at: string
 }
 
+export interface CaughtFish {
+  id: string
+  user_id: string
+  fish_id: string
+  caught: boolean
+  created_at: string
+}
+
 export interface UserSettings {
   id: string
   user_id: string

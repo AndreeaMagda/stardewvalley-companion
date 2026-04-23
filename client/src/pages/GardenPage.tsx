@@ -156,7 +156,7 @@ export default function GardenPage() {
   const style       = SEASON_STYLE[currentSeason]
 
   return (
-    <div className="p-8 max-w-3xl space-y-8">
+    <div className="p-4 md:p-8 max-w-3xl space-y-8">
 
       {/* ── Toast ────────────────────────────────────────────────── */}
       {toast && (

@@ -62,7 +62,7 @@ export default function CropsPage() {
   const isCurrentSeason = (crop: Crop) => crop.seasons.includes(currentSeason)
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-5xl">
 
         <div className="mb-7">
