@@ -50,6 +50,48 @@ function weatherIcon(w: Fish['weather']) {
   return null
 }
 
+// Wiki sprites — 48px thumbnails (3× the in-game 16px, keeps pixel-art crispness)
+const W = 'https://stardewvalleywiki.com/mediawiki/images/thumb'
+const SPRITES: Record<string, string> = {
+  carp:           `${W}/a/a8/Carp.png/24px-Carp.png`,
+  largemouth:     `${W}/1/11/Largemouth_Bass.png/24px-Largemouth_Bass.png`,
+  bullhead:       `${W}/d/db/Bullhead.png/24px-Bullhead.png`,
+  woodskip:       `${W}/9/97/Woodskip.png/24px-Woodskip.png`,
+  ghostfish:      `${W}/7/72/Ghostfish.png/24px-Ghostfish.png`,
+  stonefish:      `${W}/0/03/Stonefish.png/24px-Stonefish.png`,
+  ice_pip:        `${W}/6/63/Ice_Pip.png/24px-Ice_Pip.png`,
+  lava_eel:       `${W}/1/12/Lava_Eel.png/24px-Lava_Eel.png`,
+  void_salmon:    `${W}/a/ad/Void_Salmon.png/24px-Void_Salmon.png`,
+  slimejack:      `${W}/3/34/Slimejack.png/24px-Slimejack.png`,
+  mutant_carp:    `${W}/c/cb/Mutant_Carp.png/24px-Mutant_Carp.png`,
+  sardine:        `${W}/0/04/Sardine.png/24px-Sardine.png`,
+  smallmouth:     `${W}/a/a5/Smallmouth_Bass.png/24px-Smallmouth_Bass.png`,
+  catfish:        `${W}/9/99/Catfish.png/24px-Catfish.png`,
+  eel:            `${W}/9/91/Eel.png/24px-Eel.png`,
+  shad:           `${W}/e/ef/Shad.png/24px-Shad.png`,
+  legend:         `${W}/1/10/Legend.png/24px-Legend.png`,
+  pufferfish:     `${W}/b/ba/Pufferfish.png/24px-Pufferfish.png`,
+  tuna:           `${W}/c/c5/Tuna.png/24px-Tuna.png`,
+  red_snapper:    `${W}/d/d3/Red_Snapper.png/24px-Red_Snapper.png`,
+  tilapia:        `${W}/7/73/Tilapia.png/24px-Tilapia.png`,
+  pike:           `${W}/3/31/Pike.png/24px-Pike.png`,
+  octopus:        `${W}/5/5a/Octopus.png/24px-Octopus.png`,
+  super_cucumber: `${W}/d/d5/Super_Cucumber.png/24px-Super_Cucumber.png`,
+  crimsonfish:    `${W}/d/dc/Crimsonfish.png/24px-Crimsonfish.png`,
+  salmon:         `${W}/e/e0/Salmon.png/24px-Salmon.png`,
+  walleye:        `${W}/0/05/Walleye.png/24px-Walleye.png`,
+  tiger_trout:    `${W}/0/01/Tiger_Trout.png/24px-Tiger_Trout.png`,
+  albacore:       `${W}/e/e1/Albacore.png/24px-Albacore.png`,
+  midnight_carp:  `${W}/3/33/Midnight_Carp.png/24px-Midnight_Carp.png`,
+  angler:         `${W}/b/bf/Angler.png/24px-Angler.png`,
+  squid:          `${W}/8/81/Squid.png/24px-Squid.png`,
+  lingcod:        `${W}/8/87/Lingcod.png/24px-Lingcod.png`,
+  spook_fish:     `${W}/8/8c/Spook_Fish.png/24px-Spook_Fish.png`,
+  blobfish:       `${W}/7/7f/Blobfish.png/24px-Blobfish.png`,
+  midnight_squid: `${W}/8/83/Midnight_Squid.png/24px-Midnight_Squid.png`,
+  glacierfish:    `${W}/f/fd/Glacierfish.png/24px-Glacierfish.png`,
+}
+
 export default function FishPage() {
   const { currentSeason } = useAppStore()
   const [caught, setCaught]       = useState<CaughtFish[]>([])
@@ -173,17 +215,19 @@ export default function FishPage() {
 
             return (
               <div key={fish.id}
-                className={`bg-white border rounded-2xl px-4 py-3.5 flex items-center gap-3 transition-all ${
+                className={`bg-white border rounded-2xl px-4 py-3 flex items-center gap-3 transition-all ${
                   done ? 'border-parchment opacity-60' : 'border-parchment hover:border-brown-pale'
                 }`}
                 style={{ boxShadow: 'var(--shadow-card)' }}>
 
-                {/* Difficulty indicator */}
-                <div className="flex flex-col items-center gap-0.5 flex-shrink-0 w-10">
-                  <div className={`w-10 h-1.5 rounded-full ${difficultyColor(fish.difficulty)}`} />
-                  <span className={`text-[9px] font-semibold ${difficultyText(fish.difficulty)}`}>
-                    {difficultyLabel(fish.difficulty)}
-                  </span>
+                {/* Sprite */}
+                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
+                  {SPRITES[fish.id]
+                    ? <img src={SPRITES[fish.id]} alt={fish.name}
+                        style={{ imageRendering: 'pixelated', width: 40, height: 40 }}
+                        referrerPolicy="no-referrer" />
+                    : <span className="text-2xl">🐟</span>
+                  }
                 </div>
 
                 {/* Info */}
@@ -195,6 +239,9 @@ export default function FishPage() {
                     {fish.legendary && (
                       <span className="text-[10px] bg-brown/10 text-brown px-1.5 py-0.5 rounded-full font-medium">Legendary</span>
                     )}
+                    <span className={`text-[10px] font-semibold ${difficultyText(fish.difficulty)}`}>
+                      {difficultyLabel(fish.difficulty)}
+                    </span>
                   </div>
                   <p className="text-xs text-muted mt-0.5 truncate">{fish.location}</p>
                   <div className="flex items-center gap-2 mt-0.5 flex-wrap">
