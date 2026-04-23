@@ -2,45 +2,60 @@ import { useEffect, useState } from 'react'
 import type { Resource } from '@shared'
 import { supabase, USER_ID } from '../api/supabase'
 
-const RESOURCE_GROUPS: { label: string; icon: string; items: string[] }[] = [
+const RESOURCE_GROUPS: { label: string; icon: string; items: { name: string; hint: string }[] }[] = [
   {
-    label: 'Basic Materials',
-    icon: '🪵',
-    items: ['Wood', 'Stone', 'Fiber', 'Sap', 'Hardwood'],
+    label: 'Basic Materials', icon: '🪵',
+    items: [
+      { name: 'Wood',      hint: 'Chop trees on your farm' },
+      { name: 'Stone',     hint: 'Mine rocks and the Mines' },
+      { name: 'Fiber',     hint: 'Cut weeds with a scythe' },
+      { name: 'Sap',       hint: 'Drops when chopping trees' },
+      { name: 'Hardwood',  hint: 'Large stumps, Secret Woods' },
+    ],
   },
   {
-    label: 'Ores & Bars',
-    icon: '⛏️',
-    items: ['Coal', 'Copper Ore', 'Iron Ore', 'Gold Ore', 'Iridium Ore'],
+    label: 'Ores & Bars', icon: '⛏️',
+    items: [
+      { name: 'Coal',       hint: 'Mines floors 40–80' },
+      { name: 'Copper Ore', hint: 'Mines floors 1–39' },
+      { name: 'Iron Ore',   hint: 'Mines floors 40–79' },
+      { name: 'Gold Ore',   hint: 'Mines floors 80+' },
+      { name: 'Iridium Ore',hint: 'Skull Cavern' },
+    ],
   },
   {
-    label: 'Farming',
-    icon: '🌱',
-    items: ['Mixed Seeds', 'Basic Fertilizer', 'Quality Fertilizer', 'Speed-Gro'],
+    label: 'Farming Supplies', icon: '🌱',
+    items: [
+      { name: 'Mixed Seeds',        hint: 'Dropped by weeds' },
+      { name: 'Basic Fertilizer',   hint: 'Crafted from Sap ×2' },
+      { name: 'Quality Fertilizer', hint: 'Crafted from Sap ×4 + Fish' },
+      { name: 'Speed-Gro',          hint: 'Spring Foraging Bundle reward' },
+    ],
   },
   {
-    label: 'Fishing & Combat',
-    icon: '🎣',
-    items: ['Bait', 'Bomb', 'Cherry Bomb', 'Mega Bomb'],
+    label: 'Combat & Fishing', icon: '⚔️',
+    items: [
+      { name: 'Bait',        hint: 'Crafted from Bug Meat' },
+      { name: 'Bomb',        hint: 'Crafted from Iron Ore ×4 + Coal ×1' },
+      { name: 'Cherry Bomb', hint: 'Crafted from Copper Ore ×4 + Coal ×1' },
+      { name: 'Mega Bomb',   hint: 'Crafted from Gold Ore ×4 + Frozen Tear ×1 + Fire Quartz ×1' },
+    ],
   },
 ]
 
-const ALL_DEFAULT = RESOURCE_GROUPS.flatMap((g) => g.items)
+const ALL_ITEMS = RESOURCE_GROUPS.flatMap((g) => g.items.map((i) => i.name))
 
 export default function ResourcesPage() {
   const [resources, setResources] = useState<Resource[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading]     = useState(true)
+  const [resetting, setResetting] = useState(false)
 
   const load = async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('resources')
-      .select('*')
-      .eq('user_id', USER_ID)
-    const existing = (data as Resource[]) ?? []
+    const { data } = await supabase.from('resources').select('*').eq('user_id', USER_ID)
+    const existing     = (data as Resource[]) ?? []
     const existingTypes = new Set(existing.map((r) => r.type))
-    const missing = ALL_DEFAULT.filter((t) => !existingTypes.has(t))
-
+    const missing       = ALL_ITEMS.filter((t) => !existingTypes.has(t))
     if (missing.length > 0) {
       const { data: inserted } = await supabase
         .from('resources')
@@ -55,34 +70,47 @@ export default function ResourcesPage() {
 
   useEffect(() => { load() }, [])
 
-  const getQty = (type: string) => resources.find((r) => r.type === type)?.quantity ?? 0
+  const getResource = (name: string) => resources.find((r) => r.type === name)
 
-  const updateQty = async (type: string, delta: number) => {
-    const resource = resources.find((r) => r.type === type)
-    if (!resource) return
-    const newQty = Math.max(0, resource.quantity + delta)
-    await supabase
-      .from('resources')
-      .update({ quantity: newQty, updated_at: new Date().toISOString() })
-      .eq('id', resource.id)
-    setResources((prev) => prev.map((r) => r.type === type ? { ...r, quantity: newQty } : r))
+  const updateQty = async (name: string, delta: number) => {
+    const r = getResource(name)
+    if (!r) return
+    const newQty = Math.max(0, r.quantity + delta)
+    await supabase.from('resources').update({ quantity: newQty, updated_at: new Date().toISOString() }).eq('id', r.id)
+    setResources((prev) => prev.map((x) => x.type === name ? { ...x, quantity: newQty } : x))
   }
 
-  const setQty = async (type: string, value: number) => {
-    const resource = resources.find((r) => r.type === type)
-    if (!resource) return
+  const setQty = async (name: string, value: number) => {
+    const r = getResource(name)
+    if (!r) return
     const newQty = Math.max(0, value)
-    await supabase
-      .from('resources')
-      .update({ quantity: newQty, updated_at: new Date().toISOString() })
-      .eq('id', resource.id)
-    setResources((prev) => prev.map((r) => r.type === type ? { ...r, quantity: newQty } : r))
+    await supabase.from('resources').update({ quantity: newQty, updated_at: new Date().toISOString() }).eq('id', r.id)
+    setResources((prev) => prev.map((x) => x.type === name ? { ...x, quantity: newQty } : x))
+  }
+
+  const resetAll = async () => {
+    setResetting(true)
+    await Promise.all(
+      resources.map((r) =>
+        supabase.from('resources').update({ quantity: 0, updated_at: new Date().toISOString() }).eq('id', r.id)
+      )
+    )
+    setResources((prev) => prev.map((r) => ({ ...r, quantity: 0 })))
+    setResetting(false)
   }
 
   return (
     <div className="p-8 max-w-3xl">
-      <h2 className="text-2xl font-semibold text-ink mb-1">Resources</h2>
-      <p className="text-muted text-sm mt-1 mb-7">Keep track of your materials inventory.</p>
+      <div className="flex items-start justify-between mb-7">
+        <div>
+          <h2 className="text-2xl font-semibold text-ink">Resources</h2>
+          <p className="text-muted text-sm mt-1">Track your materials inventory.</p>
+        </div>
+        <button onClick={resetAll} disabled={resetting}
+          className="text-xs text-muted hover:text-fall border border-parchment hover:border-fall/40 px-3 py-1.5 rounded-lg transition-colors">
+          {resetting ? 'Resetting…' : 'Reset all'}
+        </button>
+      </div>
 
       {loading ? (
         <p className="text-muted text-sm">Loading…</p>
@@ -91,39 +119,40 @@ export default function ResourcesPage() {
           {RESOURCE_GROUPS.map((group) => (
             <section key={group.label}>
               <p className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted mb-3">
-                <span>{group.icon}</span> {group.label}
+                <span>{group.icon}</span>{group.label}
               </p>
-              <div className="grid grid-cols-2 gap-3">
-                {group.items.map((type) => {
-                  const qty = getQty(type)
+              <div className="space-y-2">
+                {group.items.map(({ name, hint }) => {
+                  const qty = getResource(name)?.quantity ?? 0
                   return (
-                    <div
-                      key={type}
-                      className="bg-white border border-parchment rounded-2xl px-5 py-4 flex items-center gap-3 hover:border-brown-pale transition-all"
-                      style={{ boxShadow: 'var(--shadow-card)' }}
-                    >
+                    <div key={name}
+                      className="bg-white border border-parchment rounded-2xl px-5 py-3.5 flex items-center gap-4 hover:border-brown-pale transition-all"
+                      style={{ boxShadow: 'var(--shadow-card)' }}>
+
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-ink">{type}</p>
+                        <p className="text-sm font-medium text-ink">{name}</p>
+                        <p className="text-xs text-muted mt-0.5">{hint}</p>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => updateQty(type, -1)}
-                          className="w-7 h-7 rounded-lg bg-cream-dark hover:bg-parchment text-ink text-base font-bold transition-colors flex items-center justify-center"
-                        >
+
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => updateQty(name, -10)}
+                          className="w-8 h-8 rounded-lg bg-cream-dark hover:bg-parchment text-muted text-xs font-bold transition-colors flex items-center justify-center">
+                          ‹‹
+                        </button>
+                        <button onClick={() => updateQty(name, -1)}
+                          className="w-8 h-8 rounded-lg bg-cream-dark hover:bg-parchment text-ink text-lg font-bold transition-colors flex items-center justify-center leading-none">
                           −
                         </button>
-                        <input
-                          type="number"
-                          min={0}
-                          value={qty}
-                          onChange={(e) => setQty(type, Number(e.target.value))}
-                          className="w-12 text-center text-ink font-semibold text-sm border border-parchment rounded-lg py-0.5 focus:outline-none focus:border-brown bg-cream"
-                        />
-                        <button
-                          onClick={() => updateQty(type, 1)}
-                          className="w-7 h-7 rounded-lg bg-cream-dark hover:bg-parchment text-ink text-base font-bold transition-colors flex items-center justify-center"
-                        >
+                        <input type="number" min={0} value={qty}
+                          onChange={(e) => setQty(name, Number(e.target.value))}
+                          className="w-16 text-center text-ink font-bold text-sm border border-parchment rounded-lg py-1.5 focus:outline-none focus:border-brown bg-cream" />
+                        <button onClick={() => updateQty(name, 1)}
+                          className="w-8 h-8 rounded-lg bg-cream-dark hover:bg-parchment text-ink text-lg font-bold transition-colors flex items-center justify-center leading-none">
                           +
+                        </button>
+                        <button onClick={() => updateQty(name, 10)}
+                          className="w-8 h-8 rounded-lg bg-cream-dark hover:bg-parchment text-muted text-xs font-bold transition-colors flex items-center justify-center">
+                          ››
                         </button>
                       </div>
                     </div>

@@ -9,11 +9,11 @@ import { useAppStore } from '../store/useAppStore'
 const SEASON_INDEX: Record<Season, number> = { spring: 0, summer: 1, fall: 2, winter: 3 }
 const SEASONS: Season[] = ['spring', 'summer', 'fall', 'winter']
 
-const SEASON_STYLE: Record<Season, { active: string; badge: string; bar: string }> = {
-  spring: { active: 'bg-spring text-white',  badge: 'bg-spring/10 text-spring',  bar: 'bg-spring' },
-  summer: { active: 'bg-summer text-white',  badge: 'bg-summer/10 text-summer',  bar: 'bg-summer' },
-  fall:   { active: 'bg-fall text-white',    badge: 'bg-fall/10 text-fall',      bar: 'bg-fall'   },
-  winter: { active: 'bg-winter text-white',  badge: 'bg-winter/10 text-winter',  bar: 'bg-winter' },
+const SEASON_STYLE: Record<Season, { active: string; soft: string; text: string; bar: string; ring: string }> = {
+  spring: { active: 'bg-spring text-white', soft: 'bg-spring/10', text: 'text-spring', bar: 'bg-spring', ring: 'ring-spring/30' },
+  summer: { active: 'bg-summer text-white', soft: 'bg-summer/10', text: 'text-summer', bar: 'bg-summer', ring: 'ring-summer/30' },
+  fall:   { active: 'bg-fall text-white',   soft: 'bg-fall/10',   text: 'text-fall',   bar: 'bg-fall',   ring: 'ring-fall/30'   },
+  winter: { active: 'bg-winter text-white', soft: 'bg-winter/10', text: 'text-winter', bar: 'bg-winter', ring: 'ring-winter/30' },
 }
 
 function possibleHarvests(crop: Crop, currentDay: number): number {
@@ -21,6 +21,13 @@ function possibleHarvests(crop: Crop, currentDay: number): number {
   if (daysLeft < crop.growDays) return 0
   if (!crop.regrowDays) return 1
   return 1 + Math.floor((daysLeft - crop.growDays) / crop.regrowDays)
+}
+
+function profitPerDay(crop: Crop, currentDay: number): number {
+  const harvests = possibleHarvests(crop, currentDay)
+  if (!harvests) return 0
+  const daysLeft = 28 - currentDay
+  return Math.round((crop.sellPrice * harvests - crop.seedCost) / Math.max(1, daysLeft))
 }
 
 function toAbsoluteDay(year: number, season: Season, day: number) {
@@ -45,22 +52,25 @@ function getHarvestInfo(entry: GardenEntry, year: number, season: Season, day: n
   }
 }
 
-// ── toast ─────────────────────────────────────────────────────────────────────
-
-interface Toast { id: number; names: string[] }
+function progressBarColor(progress: number, ready: boolean): string {
+  if (ready) return 'bg-green'
+  if (progress < 35) return 'bg-brown-light'
+  if (progress < 70) return 'bg-summer'
+  return 'bg-spring'
+}
 
 // ── component ─────────────────────────────────────────────────────────────────
 
 export default function GardenPage() {
   const { currentDay, currentSeason, currentYear, setDay, setSeason, setYear, saveSettings } = useAppStore()
-  const [entries, setEntries]   = useState<GardenEntry[]>([])
-  const [loading, setLoading]   = useState(true)
-  const [adding, setAdding]     = useState(false)
-  const [addError, setAddError] = useState<string | null>(null)
+  const [entries, setEntries]     = useState<GardenEntry[]>([])
+  const [loading, setLoading]     = useState(true)
+  const [adding, setAdding]       = useState(false)
+  const [addError, setAddError]   = useState<string | null>(null)
   const [newCropId, setNewCropId] = useState(CROPS[0].id)
   const [newNotes, setNewNotes]   = useState('')
   const [showAll, setShowAll]     = useState(false)
-  const [toast, setToast]         = useState<Toast | null>(null)
+  const [toast, setToast]         = useState<{ id: number; names: string[] } | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const load = async () => {
@@ -74,26 +84,25 @@ export default function GardenPage() {
 
   useEffect(() => { load() }, [])
 
-  // ── actions ──────────────────────────────────────────────────────────────────
+  // ── advance day ──────────────────────────────────────────────────────────────
 
   const advanceDay = () => {
-    const nextDay    = currentDay >= 28 ? 28 : currentDay + 1
-    const nextSeason = currentDay >= 28 ? SEASONS[(SEASON_INDEX[currentSeason] + 1) % 4] : currentSeason
-    const nextYear   = currentDay >= 28 && currentSeason === 'winter' ? currentYear + 1 : currentYear
+    const isLastDay   = currentDay >= 28
+    const nextDay     = isLastDay ? 1 : currentDay + 1
+    const seasonIdx   = SEASON_INDEX[currentSeason]
+    const nextSeason  = isLastDay ? SEASONS[(seasonIdx + 1) % 4] as Season : currentSeason
+    const nextYear    = isLastDay && currentSeason === 'winter' ? currentYear + 1 : currentYear
 
-    // Find plants that become ready on the next day
     const newlyReady = entries
       .filter((e) => !e.harvested)
       .filter((e) => {
-        const wasBefore = getHarvestInfo(e, currentYear, currentSeason, currentDay)?.ready
-        const willBe    = getHarvestInfo(e, nextYear, nextSeason, nextDay)?.ready
-        return !wasBefore && willBe
+        const before = getHarvestInfo(e, currentYear, currentSeason, currentDay)?.ready
+        const after  = getHarvestInfo(e, nextYear, nextSeason, nextDay)?.ready
+        return !before && after
       })
       .map((e) => CROPS.find((c) => c.id === e.crop_id)?.name ?? e.crop_id)
 
-    setDay(nextDay)
-    setSeason(nextSeason)
-    setYear(nextYear)
+    setDay(nextDay); setSeason(nextSeason); setYear(nextYear)
     saveSettings()
 
     if (newlyReady.length > 0) {
@@ -103,6 +112,8 @@ export default function GardenPage() {
     }
   }
 
+  // ── add / harvest / delete ───────────────────────────────────────────────────
+
   const addEntry = async () => {
     setAddError(null)
     const { error } = await supabase.from('garden_entries').insert({
@@ -110,14 +121,13 @@ export default function GardenPage() {
       planted_year: currentYear, season: currentSeason, day: currentDay,
       notes: newNotes || null, harvested: false,
     })
-    if (error) { setAddError(error.message) }
+    if (error) setAddError(error.message)
     else { setAdding(false); setNewNotes(''); load() }
   }
 
   const markHarvested = async (entry: GardenEntry) => {
     await supabase.from('garden_entries')
-      .update({ harvested: true, updated_at: new Date().toISOString() })
-      .eq('id', entry.id)
+      .update({ harvested: true, updated_at: new Date().toISOString() }).eq('id', entry.id)
     setEntries((prev) => prev.map((e) => e.id === entry.id ? { ...e, harvested: true } : e))
   }
 
@@ -126,47 +136,54 @@ export default function GardenPage() {
     setEntries((prev) => prev.filter((e) => e.id !== id))
   }
 
-  // ── derived ──────────────────────────────────────────────────────────────────
+  // ── derived data ─────────────────────────────────────────────────────────────
 
   const seasonCrops = CROPS
     .filter((c) => c.seasons.includes(currentSeason) && c.type !== 'flower' && c.type !== 'grain')
-    .map((c) => ({ ...c, harvests: possibleHarvests(c, currentDay) }))
-    .sort((a, b) => b.harvests - a.harvests || b.sellPrice - a.sellPrice)
+    .map((c) => ({
+      ...c,
+      harvests: possibleHarvests(c, currentDay),
+      gpd: profitPerDay(c, currentDay),
+    }))
+    .sort((a, b) => b.gpd - a.gpd)
 
-  const plantable = seasonCrops.filter((c) => c.harvests > 0)
-  const tooLate   = seasonCrops.filter((c) => c.harvests === 0)
-  const active    = entries.filter((e) => !e.harvested)
-  const archived  = entries.filter((e) =>  e.harvested)
-  const readyNow  = active.filter((e) => getHarvestInfo(e, currentYear, currentSeason, currentDay)?.ready).length
-  const style     = SEASON_STYLE[currentSeason]
+  const plantable   = seasonCrops.filter((c) => c.harvests > 0)
+  const tooLate     = seasonCrops.filter((c) => c.harvests === 0)
+  const active      = entries.filter((e) => !e.harvested)
+  const archived    = entries.filter((e) =>  e.harvested)
+  const readyNow    = active.filter((e) => getHarvestInfo(e, currentYear, currentSeason, currentDay)?.ready).length
+  const daysLeft    = 28 - currentDay
+  const style       = SEASON_STYLE[currentSeason]
 
   return (
-    <div className="p-8 max-w-3xl space-y-10">
+    <div className="p-8 max-w-3xl space-y-8">
 
-      {/* ── Toast notification ──────────────────────────────────── */}
+      {/* ── Toast ────────────────────────────────────────────────── */}
       {toast && (
-        <div className="fixed top-6 right-6 z-50 animate-in fade-in slide-in-from-top-2">
+        <div className="fixed top-6 right-6 z-50">
           <div className="bg-green text-cream rounded-2xl px-5 py-4 shadow-xl max-w-xs" style={{ boxShadow: 'var(--shadow-card-hover)' }}>
             <p className="font-semibold text-sm mb-1">🌾 Ready to harvest!</p>
-            {toast.names.map((name) => (
-              <p key={name} className="text-sm opacity-90">· {name}</p>
-            ))}
-            <button onClick={() => setToast(null)} className="mt-3 text-xs opacity-60 hover:opacity-100 transition-opacity">
-              Dismiss
-            </button>
+            {toast.names.map((name) => <p key={name} className="text-sm opacity-90">· {name}</p>)}
+            <button onClick={() => setToast(null)} className="mt-3 text-xs opacity-60 hover:opacity-100 transition-opacity">Dismiss</button>
           </div>
         </div>
       )}
 
-      {/* ── Date selector ───────────────────────────────────────── */}
-      <section>
-        <h2 className="text-2xl font-semibold text-ink mb-1">Garden Planner</h2>
-        <p className="text-muted text-sm mb-5">Set your in-game date to see what's worth planting.</p>
+      {/* ── Page title ───────────────────────────────────────────── */}
+      <div>
+        <h2 className="text-2xl font-semibold text-ink">Garden Planner</h2>
+        <p className="text-muted text-sm mt-1">Plan your season and track what's growing.</p>
+      </div>
 
-        <div className="bg-white border border-parchment rounded-2xl p-5 flex flex-wrap gap-6 items-end" style={{ boxShadow: 'var(--shadow-card)' }}>
+      {/* ── Planning card (date + what to plant, unified) ────────── */}
+      <div className="bg-white border border-parchment rounded-2xl overflow-hidden" style={{ boxShadow: 'var(--shadow-card)' }}>
 
+        {/* Date controls */}
+        <div className="p-5 flex flex-wrap gap-5 items-end border-b border-parchment">
+
+          {/* Season */}
           <div>
-            <label className="text-[11px] uppercase tracking-widest text-muted mb-2 block">Season</label>
+            <p className="text-[11px] uppercase tracking-widest text-muted mb-2">Season</p>
             <div className="flex gap-1 bg-cream-dark rounded-xl p-1">
               {SEASONS.map((s) => (
                 <button key={s} onClick={() => setSeason(s)}
@@ -177,25 +194,31 @@ export default function GardenPage() {
             </div>
           </div>
 
-          <div>
-            <label className="text-[11px] uppercase tracking-widest text-muted mb-2 block">Day</label>
-            <div className="flex items-center gap-2">
+          {/* Day slider */}
+          <div className="flex-1 min-w-44">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[11px] uppercase tracking-widest text-muted">Day</p>
+              <span className={`text-xs font-semibold ${style.text}`}>{daysLeft} days left</span>
+            </div>
+            <div className="flex items-center gap-3">
               <input type="range" min={1} max={28} value={currentDay}
                 onChange={(e) => setDay(Number(e.target.value))}
-                className="w-32 accent-green" />
-              <span className={`text-lg font-bold w-8 text-center ${style.badge.split(' ')[1]}`}>{currentDay}</span>
+                className="flex-1 accent-green h-1.5" />
+              <span className={`text-xl font-bold w-8 text-center ${style.text}`}>{currentDay}</span>
             </div>
           </div>
 
+          {/* Year */}
           <div>
-            <label className="text-[11px] uppercase tracking-widest text-muted mb-2 block">Year</label>
+            <p className="text-[11px] uppercase tracking-widest text-muted mb-2">Year</p>
             <input type="number" min={1} value={currentYear}
               onChange={(e) => setYear(Number(e.target.value))}
               className="w-16 border border-parchment rounded-xl px-3 py-1.5 text-sm text-center focus:outline-none focus:border-brown bg-cream font-medium" />
           </div>
 
-          <div className="ml-auto flex gap-2">
-            <button onClick={() => saveSettings()}
+          {/* Actions */}
+          <div className="flex gap-2 ml-auto">
+            <button onClick={saveSettings}
               className="text-sm text-muted border border-parchment hover:border-brown px-4 py-2 rounded-xl transition-colors">
               Save
             </button>
@@ -205,79 +228,95 @@ export default function GardenPage() {
             </button>
           </div>
         </div>
-      </section>
 
-      {/* ── What to plant ───────────────────────────────────────── */}
-      <section>
-        <div className="flex items-baseline justify-between mb-4">
-          <div>
-            <h3 className="text-base font-semibold text-ink">
-              What to plant in <span className={`capitalize ${style.badge.split(' ')[1]}`}>{currentSeason}</span>
-            </h3>
-            <p className="text-xs text-muted mt-0.5">{28 - currentDay} days left in the season</p>
+        {/* What to plant — directly below date controls */}
+        <div className="p-5">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-semibold text-ink">
+              What to plant this <span className={`capitalize ${style.text}`}>{currentSeason}</span>
+            </p>
+            <span className="text-xs text-muted">{plantable.length} viable crops</span>
           </div>
-          <span className="text-xs text-muted">{plantable.length} viable</span>
-        </div>
 
-        {currentSeason === 'winter' ? (
-          <div className="bg-cream-dark rounded-2xl p-8 text-center">
-            <p className="text-2xl mb-2">❄️</p>
-            <p className="text-muted text-sm">Nothing grows outdoors in Winter.<br />Focus on the Mines or Greenhouse.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {plantable.map((crop) => (
-                <div key={crop.id}
-                  className="bg-white border border-parchment hover:border-brown-pale rounded-2xl p-4 flex gap-4 items-start transition-all"
-                  style={{ boxShadow: 'var(--shadow-card)' }}>
-                  <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex flex-col items-center justify-center ${style.badge}`}>
-                    <span className="text-base font-bold leading-none">{crop.harvests}</span>
-                    <span className="text-[9px] leading-none opacity-70">harvest{crop.harvests > 1 ? 's' : ''}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-ink text-sm">{crop.name}</p>
-                    <p className="text-xs text-muted mt-0.5">
-                      {crop.growDays}d{crop.regrowDays ? ` · ↺ ${crop.regrowDays}d` : ''} · ready day {currentDay + crop.growDays}
-                    </p>
-                    <div className="flex gap-3 mt-2 text-xs">
-                      <span className="text-ink font-medium">{crop.sellPrice}g</span>
-                      {crop.kegValue && <span className="text-green font-medium">Keg {crop.kegValue}g</span>}
-                      {!crop.kegValue && crop.jarValue && <span className="text-brown font-medium">Jar {crop.jarValue}g</span>}
+          {currentSeason === 'winter' ? (
+            <div className="bg-cream-dark rounded-xl p-6 text-center">
+              <p className="text-xl mb-1">❄️</p>
+              <p className="text-muted text-sm">Nothing grows outdoors in Winter.</p>
+            </div>
+          ) : plantable.length === 0 ? (
+            <div className="bg-cream-dark rounded-xl p-6 text-center">
+              <p className="text-muted text-sm">Too late in the season to plant anything new.</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {plantable.map((crop, i) => {
+                const isTop = i < 2
+                return (
+                  <div key={crop.id}
+                    className={`flex items-center gap-4 px-4 py-3 rounded-xl border transition-all ${
+                      isTop
+                        ? `${style.soft} border-transparent ring-1 ${style.ring}`
+                        : 'bg-cream-dark/50 border-transparent hover:bg-cream-dark'
+                    }`}>
+
+                    {/* Rank / best pick */}
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-sm font-bold ${
+                      isTop ? style.active : 'bg-parchment text-muted'
+                    }`}>
+                      {i + 1}
                     </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-ink text-sm">{crop.name}</p>
+                        {isTop && <span className={`text-[10px] font-bold uppercase tracking-wide ${style.text}`}>Best pick</span>}
+                      </div>
+                      <p className="text-xs text-muted mt-0.5">
+                        {crop.growDays}d grow{crop.regrowDays ? ` · ↺ ${crop.regrowDays}d` : ''}
+                        {' · '}{crop.harvests} harvest{crop.harvests > 1 ? 's' : ''}
+                        {' · '}ready day {Math.min(28, currentDay + crop.growDays)}
+                      </p>
+                    </div>
+
+                    {/* Profit/day */}
+                    <div className="text-right flex-shrink-0">
+                      <p className={`text-sm font-bold ${isTop ? style.text : 'text-ink'}`}>~{crop.gpd}g/day</p>
+                      <p className="text-xs text-muted">{crop.sellPrice}g sell</p>
+                    </div>
+
+                    <button onClick={() => { setNewCropId(crop.id); setAdding(true) }}
+                      className={`text-xs px-3 py-1.5 rounded-lg font-medium flex-shrink-0 transition-colors ${
+                        isTop ? style.active : 'bg-parchment text-muted hover:bg-brown-pale hover:text-ink'
+                      }`}>
+                      Plant
+                    </button>
                   </div>
-                  <button onClick={() => { setNewCropId(crop.id); setAdding(true) }}
-                    className={`text-xs px-2.5 py-1.5 rounded-lg font-medium flex-shrink-0 transition-colors ${style.active}`}>
-                    Plant
-                  </button>
+                )
+              })}
+
+              {/* Too late toggle */}
+              {tooLate.length > 0 && (
+                <button onClick={() => setShowAll((v) => !v)}
+                  className="text-xs text-muted hover:text-ink transition-colors pt-1 pl-1">
+                  {showAll ? '▲ Hide' : `▼ ${tooLate.length} crops won't make it this season`}
+                </button>
+              )}
+              {showAll && tooLate.map((crop) => (
+                <div key={crop.id} className="flex items-center gap-4 px-4 py-3 rounded-xl border border-dashed border-parchment opacity-40">
+                  <div className="w-8 h-8 rounded-lg bg-parchment flex items-center justify-center text-xs text-muted flex-shrink-0">✕</div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-ink">{crop.name}</p>
+                    <p className="text-xs text-muted">{crop.growDays}d — won't be ready before season ends</p>
+                  </div>
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      </div>
 
-            {tooLate.length > 0 && (
-              <div>
-                <button onClick={() => setShowAll((v) => !v)}
-                  className="text-xs text-muted hover:text-ink transition-colors mt-1 mb-2">
-                  {showAll ? '▲ Hide' : `▼ ${tooLate.length} crops won't make it this season`}
-                </button>
-                {showAll && tooLate.map((crop) => (
-                  <div key={crop.id} className="bg-cream-dark border border-parchment/50 rounded-2xl p-4 flex gap-4 items-center opacity-50 mb-2">
-                    <div className="w-10 h-10 rounded-xl bg-parchment flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs text-muted">✕</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-ink text-sm">{crop.name}</p>
-                      <p className="text-xs text-muted">{crop.growDays}d — won't be ready before season ends</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </section>
-
-      {/* ── Add form modal ──────────────────────────────────────── */}
+      {/* ── Add modal ────────────────────────────────────────────── */}
       {adding && (
         <div className="fixed inset-0 bg-ink/20 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm" style={{ boxShadow: 'var(--shadow-card-hover)' }}>
@@ -300,107 +339,120 @@ export default function GardenPage() {
               </div>
             </div>
             <p className="text-xs text-muted mb-4">
-              Planted on <span className={`font-medium capitalize px-1.5 py-0.5 rounded ${style.badge}`}>{currentSeason} {currentDay}</span>, Y{currentYear}
+              Planting on{' '}
+              <span className={`font-medium capitalize px-1.5 py-0.5 rounded ${style.soft} ${style.text}`}>
+                {currentSeason} {currentDay}
+              </span>
+              , Year {currentYear}
             </p>
-            {addError && (
-              <p className="text-xs text-fall bg-fall/10 rounded-lg px-3 py-2 mb-3">{addError}</p>
-            )}
+            {addError && <p className="text-xs text-fall bg-fall/10 rounded-lg px-3 py-2 mb-3">{addError}</p>}
             <div className="flex gap-3">
-              <button onClick={addEntry} className={`${style.active} px-4 py-2 rounded-xl text-sm font-medium`}>
-                Log planting
-              </button>
-              <button onClick={() => { setAdding(false); setAddError(null) }} className="text-muted text-sm hover:text-ink">
-                Cancel
-              </button>
+              <button onClick={addEntry} className={`${style.active} px-4 py-2 rounded-xl text-sm font-medium`}>Log planting</button>
+              <button onClick={() => { setAdding(false); setAddError(null) }} className="text-muted text-sm hover:text-ink">Cancel</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── Your plants ─────────────────────────────────────────── */}
-      <section>
-        <div className="flex items-baseline justify-between mb-4">
-          <h3 className="text-base font-semibold text-ink">Your plants</h3>
-          <div className="flex items-center gap-3">
+      {/* ── Your plants ──────────────────────────────────────────── */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-base font-semibold text-ink">Your plants</h3>
             {readyNow > 0 && (
-              <span className="text-xs bg-green text-cream px-2.5 py-1 rounded-full font-medium">
-                {readyNow} ready to harvest!
-              </span>
+              <p className={`text-xs font-medium mt-0.5 ${style.text}`}>
+                🌾 {readyNow} crop{readyNow > 1 ? 's' : ''} ready to harvest
+              </p>
             )}
-            <button
-              onClick={() => {
-                const first = CROPS.find((c) => c.seasons.includes(currentSeason))
-                if (first) setNewCropId(first.id)
-                setAdding(true)
-              }}
-              className="text-xs text-muted hover:text-ink border border-parchment hover:border-brown rounded-lg px-3 py-1 transition-colors">
-              + Log plant
-            </button>
           </div>
+          <button
+            onClick={() => {
+              const first = CROPS.find((c) => c.seasons.includes(currentSeason))
+              if (first) setNewCropId(first.id)
+              setAdding(true)
+            }}
+            className="text-xs text-muted hover:text-ink border border-parchment hover:border-brown rounded-lg px-3 py-1.5 transition-colors">
+            + Log plant
+          </button>
         </div>
 
         {loading ? (
           <p className="text-muted text-sm">Loading…</p>
         ) : active.length === 0 && archived.length === 0 ? (
-          <div className="bg-cream-dark rounded-2xl p-8 text-center">
+          <div className="bg-cream-dark rounded-2xl p-10 text-center">
             <p className="text-3xl mb-3">🌱</p>
-            <p className="text-muted text-sm">Nothing logged yet. Hit "Plant" on a crop above.</p>
+            <p className="text-muted text-sm">Nothing logged yet.<br />Hit "Plant" on a crop above to start tracking.</p>
           </div>
         ) : (
           <div className="space-y-5">
 
+            {/* Active */}
             {active.length > 0 && (
               <div className="space-y-2">
-                <p className="text-xs uppercase tracking-widest text-muted">Growing · {active.length}</p>
                 {active.map((entry) => {
                   const crop = CROPS.find((c) => c.id === entry.crop_id)
                   const info = getHarvestInfo(entry, currentYear, currentSeason, currentDay)
+                  const barColor = progressBarColor(info?.progress ?? 0, info?.ready ?? false)
 
                   return (
                     <div key={entry.id}
-                      className={`bg-white border rounded-2xl px-5 py-4 transition-all ${info?.ready ? 'border-green bg-green-pale/20' : 'border-parchment hover:border-brown-pale'}`}
+                      className={`bg-white border rounded-2xl px-5 py-4 transition-all ${
+                        info?.ready ? 'border-green/40 bg-green-pale/20' : 'border-parchment hover:border-parchment'
+                      }`}
                       style={{ boxShadow: 'var(--shadow-card)' }}>
 
-                      <div className="flex items-center gap-4 mb-3">
-                        {/* Days remaining / ready badge */}
-                        {info?.ready ? (
-                          <div className="w-14 h-14 rounded-xl bg-green flex flex-col items-center justify-center flex-shrink-0">
-                            <span className="text-lg">🌾</span>
-                          </div>
-                        ) : (
-                          <div className="w-14 h-14 rounded-xl bg-cream-dark flex flex-col items-center justify-center flex-shrink-0">
-                            <span className="text-xl font-bold text-ink leading-none">{info?.daysLeft}</span>
-                            <span className="text-[10px] text-muted leading-none mt-0.5">day{info?.daysLeft !== 1 ? 's' : ''}</span>
-                          </div>
-                        )}
+                      <div className="flex items-center gap-4">
+                        {/* Day counter */}
+                        <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 ${
+                          info?.ready ? 'bg-green' : info && info.progress >= 70 ? 'bg-spring/20' : info && info.progress >= 35 ? 'bg-summer/20' : 'bg-cream-dark'
+                        }`}>
+                          {info?.ready ? (
+                            <span className="text-2xl">🌾</span>
+                          ) : (
+                            <>
+                              <span className={`text-xl font-bold leading-none ${info && info.progress >= 70 ? 'text-spring' : info && info.progress >= 35 ? 'text-summer' : 'text-ink'}`}>
+                                {info?.daysLeft}
+                              </span>
+                              <span className="text-[10px] text-muted leading-none mt-0.5">days</span>
+                            </>
+                          )}
+                        </div>
 
+                        {/* Details */}
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-ink">{crop?.name ?? entry.crop_id}</p>
-                          <p className="text-xs text-muted mt-0.5">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-semibold text-ink">{crop?.name ?? entry.crop_id}</p>
+                            {info?.ready
+                              ? <span className="text-[11px] bg-green text-cream px-2 py-0.5 rounded-full font-medium">Ready!</span>
+                              : info?.progress !== undefined && (
+                                <span className="text-[11px] text-muted">{info.progress}%</span>
+                              )}
+                          </div>
+                          <p className="text-xs text-muted">
                             {info?.ready
                               ? info.daysUntilNext ? `Regrows in ${info.daysUntilNext}d` : 'Ready to harvest'
                               : `Planted ${entry.season} ${entry.day}, Y${entry.planted_year}`}
+                            {entry.notes && ` · ${entry.notes}`}
                           </p>
-                          {entry.notes && <p className="text-xs text-muted italic mt-0.5">{entry.notes}</p>}
+
+                          {/* Progress bar */}
+                          <div className="h-1.5 w-full bg-cream-dark rounded-full overflow-hidden mt-2">
+                            <div className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+                              style={{ width: `${info?.progress ?? 0}%` }} />
+                          </div>
                         </div>
 
+                        {/* Actions */}
                         <div className="flex items-center gap-2 flex-shrink-0">
                           {info?.ready && (
                             <button onClick={() => markHarvested(entry)}
-                              className="text-xs bg-green text-cream px-3 py-1.5 rounded-lg font-medium hover:bg-green-light transition-colors">
+                              className="text-xs bg-green hover:bg-green-light text-cream px-3 py-1.5 rounded-lg font-medium transition-colors">
                               Harvest
                             </button>
                           )}
-                          <button onClick={() => deleteEntry(entry.id)} className="text-muted hover:text-fall text-sm transition-colors">✕</button>
+                          <button onClick={() => deleteEntry(entry.id)}
+                            className="text-muted hover:text-fall text-sm transition-colors">✕</button>
                         </div>
-                      </div>
-
-                      {/* Progress bar */}
-                      <div className="h-1.5 w-full bg-cream-dark rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${info?.ready ? 'bg-green' : style.bar}`}
-                          style={{ width: `${info?.progress ?? 0}%` }}
-                        />
                       </div>
                     </div>
                   )
@@ -408,24 +460,28 @@ export default function GardenPage() {
               </div>
             )}
 
+            {/* Archived */}
             {archived.length > 0 && (
-              <div className="space-y-2 opacity-40">
-                <p className="text-xs uppercase tracking-widest text-muted">Harvested · {archived.length}</p>
-                {archived.map((entry) => {
-                  const crop = CROPS.find((c) => c.id === entry.crop_id)
-                  return (
-                    <div key={entry.id} className="bg-white border border-parchment rounded-2xl px-5 py-3 flex items-center gap-3">
-                      <p className="flex-1 text-sm font-medium text-ink line-through">{crop?.name ?? entry.crop_id}</p>
-                      <button onClick={() => deleteEntry(entry.id)} className="text-muted hover:text-fall text-sm">✕</button>
-                    </div>
-                  )
-                })}
+              <div className="opacity-40">
+                <p className="text-xs uppercase tracking-widest text-muted mb-2">Harvested · {archived.length}</p>
+                <div className="space-y-1.5">
+                  {archived.map((entry) => {
+                    const crop = CROPS.find((c) => c.id === entry.crop_id)
+                    return (
+                      <div key={entry.id} className="bg-cream-dark rounded-xl px-4 py-2.5 flex items-center gap-3">
+                        <p className="flex-1 text-sm font-medium text-ink line-through">{crop?.name ?? entry.crop_id}</p>
+                        <span className="text-xs text-muted capitalize">{entry.season} {entry.day}</span>
+                        <button onClick={() => deleteEntry(entry.id)} className="text-muted hover:text-fall text-sm">✕</button>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             )}
 
           </div>
         )}
-      </section>
+      </div>
 
     </div>
   )
