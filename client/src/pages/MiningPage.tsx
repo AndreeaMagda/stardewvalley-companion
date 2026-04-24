@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { MINE_ZONES } from '@shared'
 import type { MineZone } from '@shared'
 import { supabase, USER_ID } from '../api/supabase'
+import { mineSprite } from '../data/sprites'
 
 type MineProgress = { mines_floor: number; skull_floor: number }
 
@@ -281,14 +282,22 @@ function ItemGroup({ title, items }: { title: string; items: MineZone['items'] }
     <div>
       <p className="text-[10px] uppercase tracking-widest text-muted mb-1.5">{title}</p>
       <div className="space-y-1">
-        {items.map((item) => (
-          <div key={item.name} className="flex items-center gap-2 bg-white/70 border border-parchment/60 rounded-xl px-3 py-1.5">
-            <span className="text-sm">{TYPE_ICON[item.type]}</span>
-            <span className="text-sm text-ink font-medium flex-1">{item.name}</span>
-            <span className={`text-[10px] ${RARITY_COLOR[item.rarity]}`}>{item.rarity}</span>
-            <span className="text-[10px] text-muted">{item.sellPrice}g</span>
-          </div>
-        ))}
+        {items.map((item) => {
+          const sprite = mineSprite(item.name)
+          return (
+            <div key={item.name} className="flex items-center gap-2 bg-white/70 border border-parchment/60 rounded-xl px-3 py-1.5">
+              {sprite
+                ? <img src={sprite} alt={item.name} width={20} height={20}
+                    style={{ imageRendering: 'pixelated' }}
+                    referrerPolicy="no-referrer" />
+                : <span className="text-sm w-5 text-center">{TYPE_ICON[item.type]}</span>
+              }
+              <span className="text-sm text-ink font-medium flex-1">{item.name}</span>
+              <span className={`text-[10px] ${RARITY_COLOR[item.rarity]}`}>{item.rarity}</span>
+              <span className="text-[10px] text-muted">{item.sellPrice}g</span>
+            </div>
+          )
+        })}
       </div>
     </div>
   )

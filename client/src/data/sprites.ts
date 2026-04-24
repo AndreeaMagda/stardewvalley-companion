@@ -37,3 +37,40 @@ export const CROP_SPRITES: Record<string, string> = {
 export function cropSprite(id: string): string | undefined {
   return CROP_SPRITES[id]
 }
+
+const B = 'https://stardewvalleywiki.com/mediawiki/images'
+
+// Full-size sprites (no thumbnail path) — more reliable for hotlink
+export const MINE_SPRITES: Record<string, string> = {
+  // Gems
+  'Amethyst':       `${B}/2/2e/Amethyst.png`,
+  'Topaz':          `${B}/a/a5/Topaz.png`,
+  'Jade':           `${B}/7/7e/Jade.png`,
+  'Aquamarine':     `${B}/a/a2/Aquamarine.png`,
+  'Ruby':           `${B}/a/a9/Ruby.png`,
+  'Emerald':        `${B}/6/6a/Emerald.png`,
+  'Diamond':        `${B}/e/ea/Diamond.png`,
+  'Prismatic Shard':`${B}/5/56/Prismatic_Shard.png`,
+  // Minerals
+  'Quartz':         `${B}/c/cf/Quartz.png`,
+  'Earth Crystal':  `${B}/7/74/Earth_Crystal.png`,
+  'Frozen Tear':    `${B}/e/ec/Frozen_Tear.png`,
+  'Fire Quartz':    `${B}/5/5b/Fire_Quartz.png`,
+  // Geodes
+  'Geode':             `${B}/4/43/Geode.png`,
+  'Frozen Geode':      `${B}/b/bf/Frozen_Geode.png`,
+  'Magma Geode':       `${B}/8/89/Magma_Geode.png`,
+  'Omni Geode':        `${B}/0/09/Omni_Geode.png`,
+  // Ores (node/rock sprites — best available)
+  'Copper Ore':        `${B}/c/c8/Copper_Node.png`,
+  'Iron Ore':          `${B}/e/ea/Iron_Node.png`,
+  'Gold Ore':          `${B}/8/88/Gold_Node.png`,
+  'Iridium Ore':       `${B}/4/4d/Iridium_Node.png`,
+  'Radioactive Ore':   `${B}/4/48/Radioactive_Node.png`,
+  'Coal':              `${B}/3/3b/Coal_Node_Quarry_01.png`,
+  'Stone':             `${B}/4/45/Stone_Index668.png`,
+}
+
+export function mineSprite(name: string): string | undefined {
+  return MINE_SPRITES[name]
+}
