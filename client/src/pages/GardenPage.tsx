@@ -3,6 +3,7 @@ import { CROPS } from '@shared'
 import type { Crop, GardenEntry, Season } from '@shared'
 import { supabase, USER_ID } from '../api/supabase'
 import { useAppStore } from '../store/useAppStore'
+import { cropSprite } from '../data/sprites'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -266,6 +267,14 @@ export default function GardenPage() {
                       {i + 1}
                     </div>
 
+                    {/* Sprite */}
+                    {cropSprite(crop.id) && (
+                      <img src={cropSprite(crop.id)} alt={crop.name}
+                        style={{ imageRendering: 'pixelated', width: 28, height: 28 }}
+                        referrerPolicy="no-referrer"
+                        className="flex-shrink-0" />
+                    )}
+
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
@@ -421,6 +430,12 @@ export default function GardenPage() {
                         {/* Details */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
+                            {crop && cropSprite(crop.id) && (
+                              <img src={cropSprite(crop.id)} alt={crop.name}
+                                style={{ imageRendering: 'pixelated', width: 22, height: 22 }}
+                                referrerPolicy="no-referrer"
+                                className="flex-shrink-0" />
+                            )}
                             <p className="font-semibold text-ink">{crop?.name ?? entry.crop_id}</p>
                             {info?.ready
                               ? <span className="text-[11px] bg-green text-cream px-2 py-0.5 rounded-full font-medium">Ready!</span>

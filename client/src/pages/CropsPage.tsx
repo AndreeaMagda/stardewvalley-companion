@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { CROPS } from '@shared'
 import type { Crop, Season } from '@shared'
 import { useAppStore } from '../store/useAppStore'
+import { cropSprite } from '../data/sprites'
 
 type FilterSeason = Season | 'all'
 type SortKey = 'profit' | 'grow' | 'sell' | 'name'
@@ -115,13 +116,21 @@ export default function CropsPage() {
                 }`}
                 style={{ boxShadow: 'var(--shadow-card)' }}>
 
-                {/* Name + type */}
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold text-ink leading-tight">{crop.name}</h3>
+                {/* Sprite */}
+                <div className="flex items-center justify-between gap-2">
+                  {cropSprite(crop.id)
+                    ? <img src={cropSprite(crop.id)} alt={crop.name}
+                        style={{ imageRendering: 'pixelated', width: 48, height: 48 }}
+                        referrerPolicy="no-referrer" />
+                    : <span className="text-3xl">🌱</span>
+                  }
                   <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium capitalize flex-shrink-0 ${TYPE_BADGE[crop.type]}`}>
                     {crop.type}
                   </span>
                 </div>
+
+                {/* Name */}
+                <h3 className="font-semibold text-ink leading-tight -mt-1">{crop.name}</h3>
 
                 {/* Grow time — prominent */}
                 <div className="bg-cream rounded-xl px-4 py-3 flex items-end gap-2">
