@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { BUNDLE_ROOMS } from '@shared'
 import type { BundleRoom } from '@shared'
-import { supabase, USER_ID } from '../api/supabase'
+import { supabase } from '../api/supabase'
+import { useUserId } from '../hooks/useUserId'
 
 type CompletedMap = Record<string, boolean> // key: `bundleId-itemId`
 
@@ -32,6 +33,7 @@ function bundleProgress(bundle: BundleRoom['bundles'][number], completed: Comple
 }
 
 export default function BundlesPage() {
+  const userId = useUserId()
   const [completed, setCompleted] = useState<CompletedMap>({})
   const [loading, setLoading]     = useState(true)
   const [openRoom, setOpenRoom]   = useState<string>(BUNDLE_ROOMS[0].id)
@@ -41,7 +43,7 @@ export default function BundlesPage() {
     const { data } = await supabase
       .from('bundle_items')
       .select('bundle_id, item_id, completed')
-      .eq('user_id', USER_ID)
+      .eq('user_id', userId)
     const map: CompletedMap = {}
     for (const row of (data ?? []) as { bundle_id: string; item_id: string; completed: boolean }[]) {
       map[`${row.bundle_id}-${row.item_id}`] = row.completed
@@ -57,7 +59,7 @@ export default function BundlesPage() {
     const current = completed[key] ?? false
     setCompleted((prev) => ({ ...prev, [key]: !current }))
     await supabase.from('bundle_items').upsert(
-      { user_id: USER_ID, bundle_id: bundleId, item_id: itemId, completed: !current },
+      { user_id: userId, bundle_id: bundleId, item_id: itemId, completed: !current },
       { onConflict: 'user_id,bundle_id,item_id' }
     )
   }

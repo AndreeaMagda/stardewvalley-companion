@@ -10,11 +10,10 @@ const SEASON_TEXT: Record<string, string> = {
 }
 
 export default function Layout() {
-  const loadSettings = useAppStore((s) => s.loadSettings)
-  const { currentDay, currentSeason, currentYear } = useAppStore()
+  const { loadSettings, userId, currentDay, currentSeason, currentYear } = useAppStore()
   const [showDateSheet, setShowDateSheet] = useState(false)
 
-  useEffect(() => { loadSettings() }, [loadSettings])
+  useEffect(() => { if (userId) loadSettings() }, [userId, loadSettings])
 
   return (
     <div className="flex min-h-screen">

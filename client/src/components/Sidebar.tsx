@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router'
 import { useAppStore } from '../store/useAppStore'
 import type { Season } from '@shared'
+import { supabase } from '../api/supabase'
 
 const NAV = [
   { to: '/garden',    label: 'Garden',    icon: '🌱' },
@@ -104,6 +105,16 @@ export default function Sidebar() {
         <p className={`text-xs font-semibold capitalize mt-2 text-center ${SEASON_COLOR[currentSeason]}`}>
           {currentSeason} {currentDay} · Y{currentYear}
         </p>
+      </div>
+
+      {/* Sign out */}
+      <div className="mx-3 mb-4">
+        <button
+          onClick={() => supabase.auth.signOut()}
+          className="w-full text-xs text-green-pale/50 hover:text-green-pale/80 transition-colors py-1.5 rounded-lg hover:bg-white/5"
+        >
+          Sign out
+        </button>
       </div>
 
     </aside>

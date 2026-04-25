@@ -8,6 +8,3 @@ if (!url || !key) {
 }
 
 export const supabase = createClient(url, key)
-
-// Hardcoded until Supabase Auth is wired up — swap for supabase.auth.getUser() later
-export const USER_ID = 'dev-user'

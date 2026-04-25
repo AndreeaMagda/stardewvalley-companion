@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { MINE_ZONES } from '@shared'
 import type { MineZone } from '@shared'
-import { supabase, USER_ID } from '../api/supabase'
+import { supabase } from '../api/supabase'
+import { useUserId } from '../hooks/useUserId'
 import { mineSprite } from '../data/sprites'
 
 type MineProgress = { mines_floor: number; skull_floor: number }
@@ -65,6 +66,7 @@ function activeZone(floor: number): string {
 }
 
 export default function MiningPage() {
+  const userId = useUserId()
   const [progress, setProgress] = useState<MineProgress>({ mines_floor: 0, skull_floor: 0 })
   const [draft, setDraft]       = useState<MineProgress>({ mines_floor: 0, skull_floor: 0 })
   const [saving, setSaving]     = useState(false)
@@ -75,7 +77,7 @@ export default function MiningPage() {
       const { data } = await supabase
         .from('mine_progress')
         .select('*')
-        .eq('user_id', USER_ID)
+        .eq('user_id', userId)
         .maybeSingle()
       if (data) {
         setProgress({ mines_floor: data.mines_floor, skull_floor: data.skull_floor })
@@ -88,7 +90,7 @@ export default function MiningPage() {
   const save = async () => {
     setSaving(true)
     await supabase.from('mine_progress').upsert(
-      { user_id: USER_ID, mines_floor: draft.mines_floor, skull_floor: draft.skull_floor, updated_at: new Date().toISOString() },
+      { user_id: userId, mines_floor: draft.mines_floor, skull_floor: draft.skull_floor, updated_at: new Date().toISOString() },
       { onConflict: 'user_id' }
     )
     setProgress(draft)

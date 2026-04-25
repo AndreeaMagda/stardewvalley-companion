@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Resource } from '@shared'
-import { supabase, USER_ID } from '../api/supabase'
+import { supabase } from '../api/supabase'
+import { useUserId } from '../hooks/useUserId'
 
 const RESOURCE_GROUPS: { label: string; icon: string; items: { name: string; hint: string }[] }[] = [
   {
@@ -46,20 +47,21 @@ const RESOURCE_GROUPS: { label: string; icon: string; items: { name: string; hin
 const ALL_ITEMS = RESOURCE_GROUPS.flatMap((g) => g.items.map((i) => i.name))
 
 export default function ResourcesPage() {
+  const userId = useUserId()
   const [resources, setResources] = useState<Resource[]>([])
   const [loading, setLoading]     = useState(true)
   const [resetting, setResetting] = useState(false)
 
   const load = async () => {
     setLoading(true)
-    const { data } = await supabase.from('resources').select('*').eq('user_id', USER_ID)
+    const { data } = await supabase.from('resources').select('*').eq('user_id', userId)
     const existing     = (data as Resource[]) ?? []
     const existingTypes = new Set(existing.map((r) => r.type))
     const missing       = ALL_ITEMS.filter((t) => !existingTypes.has(t))
     if (missing.length > 0) {
       const { data: inserted } = await supabase
         .from('resources')
-        .upsert(missing.map((type) => ({ user_id: USER_ID, type, quantity: 0 })), { onConflict: 'user_id,type' })
+        .upsert(missing.map((type) => ({ user_id: userId, type, quantity: 0 })), { onConflict: 'user_id,type' })
         .select()
       setResources([...existing, ...((inserted as Resource[]) ?? [])])
     } else {

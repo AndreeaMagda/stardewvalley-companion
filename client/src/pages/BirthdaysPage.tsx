@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { VILLAGER_BIRTHDAYS } from '@shared'
 import type { GiftedBirthday, Season } from '@shared'
-import { supabase, USER_ID } from '../api/supabase'
+import { supabase } from '../api/supabase'
 import { useAppStore } from '../store/useAppStore'
+import { useUserId } from '../hooks/useUserId'
 import { villagerSprite } from '../data/sprites'
 
 const SEASON_TABS: Season[] = ['spring', 'summer', 'fall', 'winter']
@@ -15,6 +16,7 @@ const SEASON_STYLE: Record<Season, { active: string; soft: string; text: string;
 }
 
 export default function BirthdaysPage() {
+  const userId = useUserId()
   const { currentDay, currentSeason, currentYear } = useAppStore()
   const [activeSeason, setActiveSeason] = useState<Season>(currentSeason)
   const [gifted, setGifted]             = useState<GiftedBirthday[]>([])
@@ -23,7 +25,7 @@ export default function BirthdaysPage() {
   const load = async () => {
     const { data } = await supabase
       .from('gifted_birthdays').select('*')
-      .eq('user_id', USER_ID).eq('year', currentYear)
+      .eq('user_id', userId).eq('year', currentYear)
     setGifted((data as GiftedBirthday[]) ?? [])
   }
 
@@ -39,7 +41,7 @@ export default function BirthdaysPage() {
     } else {
       const { data } = await supabase
         .from('gifted_birthdays')
-        .upsert({ user_id: USER_ID, villager_name: name, year: currentYear, gifted: true }, { onConflict: 'user_id,villager_name,year' })
+        .upsert({ user_id: userId, villager_name: name, year: currentYear, gifted: true }, { onConflict: 'user_id,villager_name,year' })
         .select().single<GiftedBirthday>()
       if (data) setGifted((prev) => [...prev, data])
     }

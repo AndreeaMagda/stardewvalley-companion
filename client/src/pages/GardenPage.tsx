@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { CROPS } from '@shared'
 import type { Crop, GardenEntry, Season } from '@shared'
-import { supabase, USER_ID } from '../api/supabase'
+import { supabase } from '../api/supabase'
 import { useAppStore } from '../store/useAppStore'
+import { useUserId } from '../hooks/useUserId'
 import { cropSprite } from '../data/sprites'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -63,6 +64,7 @@ function progressBarColor(progress: number, ready: boolean): string {
 // ── component ─────────────────────────────────────────────────────────────────
 
 export default function GardenPage() {
+  const userId = useUserId()
   const { currentDay, currentSeason, currentYear, setDay, setSeason, setYear, saveSettings } = useAppStore()
   const [entries, setEntries]     = useState<GardenEntry[]>([])
   const [loading, setLoading]     = useState(true)
@@ -77,7 +79,7 @@ export default function GardenPage() {
   const load = async () => {
     setLoading(true)
     const { data } = await supabase
-      .from('garden_entries').select('*').eq('user_id', USER_ID)
+      .from('garden_entries').select('*').eq('user_id', userId)
       .order('created_at', { ascending: false })
     setEntries((data as GardenEntry[]) ?? [])
     setLoading(false)
@@ -118,7 +120,7 @@ export default function GardenPage() {
   const addEntry = async () => {
     setAddError(null)
     const { error } = await supabase.from('garden_entries').insert({
-      user_id: USER_ID, crop_id: newCropId,
+      user_id: userId, crop_id: newCropId,
       planted_year: currentYear, season: currentSeason, day: currentDay,
       notes: newNotes || null, harvested: false,
     })

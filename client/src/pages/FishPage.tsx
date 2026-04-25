@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { FISH } from '@shared'
 import type { Fish, CaughtFish, Season } from '@shared'
-import { supabase, USER_ID } from '../api/supabase'
+import { supabase } from '../api/supabase'
 import { useAppStore } from '../store/useAppStore'
+import { useUserId } from '../hooks/useUserId'
 
 type FilterTab = 'current' | Season | 'legendary'
 type WeatherFilter = 'any' | 'sun' | 'rain'
@@ -93,6 +94,7 @@ const SPRITES: Record<string, string> = {
 }
 
 export default function FishPage() {
+  const userId = useUserId()
   const { currentSeason } = useAppStore()
   const [caught, setCaught]       = useState<CaughtFish[]>([])
   const [tab, setTab]             = useState<FilterTab>('current')
@@ -104,7 +106,7 @@ export default function FishPage() {
     const { data } = await supabase
       .from('caught_fish')
       .select('*')
-      .eq('user_id', USER_ID)
+      .eq('user_id', userId)
     setCaught((data as CaughtFish[]) ?? [])
     setLoading(false)
   }
@@ -123,7 +125,7 @@ export default function FishPage() {
     } else {
       const { data } = await supabase
         .from('caught_fish')
-        .upsert({ user_id: USER_ID, fish_id: fish.id, caught: true }, { onConflict: 'user_id,fish_id' })
+        .upsert({ user_id: userId, fish_id: fish.id, caught: true }, { onConflict: 'user_id,fish_id' })
         .select().single<CaughtFish>()
       if (data) setCaught((prev) => [...prev, data])
     }
