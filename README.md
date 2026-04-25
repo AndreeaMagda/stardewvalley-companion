@@ -12,4 +12,8 @@ A cozy web app to help manage your Stardew Valley farm — track crops, resource
 
 ## License
 
-MIT
+© 2025 Magda Andreea — source available, non-commercial use only.
+See [LICENSE](./LICENSE) for details.
+
+Stardew Valley and all game assets are © ConcernedApe.
+This is an unofficial fan tool, not affiliated with or endorsed by ConcernedApe.

@@ -4,32 +4,38 @@ import type { BundleRoom } from '@shared'
 import { supabase } from '../api/supabase'
 import { useUserId } from '../hooks/useUserId'
 
-type CompletedMap = Record<string, boolean> // key: `bundleId-itemId`
+type CompletedMap = Record<string, boolean>
 
-const ROOM_COLORS: Record<string, { ring: string; bar: string; done: string; bg: string }> = {
-  'pantry':        { ring: 'border-spring/40',  bar: 'bg-spring',  done: 'bg-spring/10 text-spring',   bg: 'bg-spring/5'  },
-  'crafts-room':   { ring: 'border-green/40',   bar: 'bg-green',   done: 'bg-green/10 text-green',     bg: 'bg-green/5'   },
-  'fish-tank':     { ring: 'border-winter/40',  bar: 'bg-winter',  done: 'bg-winter/10 text-winter',   bg: 'bg-winter/5'  },
-  'boiler-room':   { ring: 'border-fall/40',    bar: 'bg-fall',    done: 'bg-fall/10 text-fall',       bg: 'bg-fall/5'    },
-  'bulletin-board':{ ring: 'border-summer/40',  bar: 'bg-summer',  done: 'bg-summer/10 text-summer',   bg: 'bg-summer/5'  },
-  'vault':         { ring: 'border-brown/40',   bar: 'bg-brown',   done: 'bg-brown/10 text-brown',     bg: 'bg-brown/5'   },
+const ROOM_COLORS: Record<string, { border: string; bar: string; tag: string; bg: string; check: string }> = {
+  'pantry':         { border: 'border-spring/40',  bar: 'bg-spring',  tag: 'bg-spring/15 text-spring',   bg: 'bg-spring/5',  check: 'bg-spring text-white' },
+  'crafts-room':    { border: 'border-green/40',   bar: 'bg-green',   tag: 'bg-green/15 text-green',     bg: 'bg-green/5',   check: 'bg-green text-white' },
+  'fish-tank':      { border: 'border-winter/40',  bar: 'bg-winter',  tag: 'bg-winter/15 text-winter',   bg: 'bg-winter/5',  check: 'bg-winter text-white' },
+  'boiler-room':    { border: 'border-fall/40',    bar: 'bg-fall',    tag: 'bg-fall/15 text-fall',       bg: 'bg-fall/5',    check: 'bg-fall text-white' },
+  'bulletin-board': { border: 'border-summer/40',  bar: 'bg-summer',  tag: 'bg-summer/15 text-summer',   bg: 'bg-summer/5',  check: 'bg-summer text-white' },
+  'vault':          { border: 'border-brown/40',   bar: 'bg-brown',   tag: 'bg-brown/15 text-brown',     bg: 'bg-brown/5',   check: 'bg-brown text-white' },
+}
+
+const QUALITY_STYLE: Record<string, string> = {
+  silver:  'text-[#a0aec0] font-semibold',
+  gold:    'text-fall font-semibold',
+  iridium: 'text-purple-500 font-semibold',
 }
 
 function roomProgress(room: BundleRoom, completed: CompletedMap) {
   let total = 0, done = 0
   for (const bundle of room.bundles) {
     const needed = bundle.required ?? bundle.items.length
-    const completedCount = bundle.items.filter((item) => completed[`${bundle.id}-${item.id}`]).length
+    const count  = bundle.items.filter((i) => completed[`${bundle.id}-${i.id}`]).length
     total += needed
-    done  += Math.min(completedCount, needed)
+    done  += Math.min(count, needed)
   }
   return { total, done, pct: total ? Math.round((done / total) * 100) : 0 }
 }
 
 function bundleProgress(bundle: BundleRoom['bundles'][number], completed: CompletedMap) {
-  const needed       = bundle.required ?? bundle.items.length
-  const completedCount = bundle.items.filter((item) => completed[`${bundle.id}-${item.id}`]).length
-  return { needed, completedCount, done: completedCount >= needed }
+  const needed = bundle.required ?? bundle.items.length
+  const count  = bundle.items.filter((i) => completed[`${bundle.id}-${i.id}`]).length
+  return { needed, count, done: count >= needed }
 }
 
 export default function BundlesPage() {
@@ -38,21 +44,22 @@ export default function BundlesPage() {
   const [loading, setLoading]     = useState(true)
   const [openRoom, setOpenRoom]   = useState<string>(BUNDLE_ROOMS[0].id)
 
-  const load = async () => {
-    setLoading(true)
-    const { data } = await supabase
-      .from('bundle_items')
-      .select('bundle_id, item_id, completed')
-      .eq('user_id', userId)
-    const map: CompletedMap = {}
-    for (const row of (data ?? []) as { bundle_id: string; item_id: string; completed: boolean }[]) {
-      map[`${row.bundle_id}-${row.item_id}`] = row.completed
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true)
+      const { data } = await supabase
+        .from('bundle_items')
+        .select('bundle_id, item_id, completed')
+        .eq('user_id', userId)
+      const map: CompletedMap = {}
+      for (const row of (data ?? []) as { bundle_id: string; item_id: string; completed: boolean }[]) {
+        map[`${row.bundle_id}-${row.item_id}`] = row.completed
+      }
+      setCompleted(map)
+      setLoading(false)
     }
-    setCompleted(map)
-    setLoading(false)
-  }
-
-  useEffect(() => { load() }, [])
+    load()
+  }, [])
 
   const toggle = async (bundleId: string, itemId: string) => {
     const key     = `${bundleId}-${itemId}`
@@ -64,10 +71,9 @@ export default function BundlesPage() {
     )
   }
 
-  // Overall progress
-  const allItems  = BUNDLE_ROOMS.flatMap((r) => r.bundles.flatMap((b) => b.items.map((i) => `${b.id}-${i.id}`)))
-  const totalDone = allItems.filter((k) => completed[k]).length
-  const totalPct  = allItems.length ? Math.round((totalDone / allItems.length) * 100) : 0
+  const allKeys    = BUNDLE_ROOMS.flatMap((r) => r.bundles.flatMap((b) => b.items.map((i) => `${b.id}-${i.id}`)))
+  const totalDone  = allKeys.filter((k) => completed[k]).length
+  const totalPct   = allKeys.length ? Math.round((totalDone / allKeys.length) * 100) : 0
 
   return (
     <div className="p-4 md:p-8 max-w-3xl">
@@ -80,11 +86,11 @@ export default function BundlesPage() {
 
       {/* Overall progress */}
       <div className="bg-white border border-parchment rounded-2xl p-5 mb-8" style={{ boxShadow: 'var(--shadow-card)' }}>
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium text-ink">Overall progress</span>
-          <span className="text-sm font-bold text-ink">{totalDone} / {allItems.length} items</span>
+          <span className="text-sm font-bold text-ink">{totalDone}<span className="text-muted font-normal"> / {allKeys.length}</span></span>
         </div>
-        <div className="h-3 w-full bg-cream-dark rounded-full overflow-hidden">
+        <div className="h-2.5 w-full bg-cream-dark rounded-full overflow-hidden">
           <div className="h-full bg-green rounded-full transition-all duration-500" style={{ width: `${totalPct}%` }} />
         </div>
         <p className="text-xs text-muted mt-2">{totalPct}% complete</p>
@@ -95,90 +101,108 @@ export default function BundlesPage() {
       ) : (
         <div className="space-y-3">
           {BUNDLE_ROOMS.map((room) => {
-            const color = ROOM_COLORS[room.id]
+            const c = ROOM_COLORS[room.id]
             const { total, done, pct } = roomProgress(room, completed)
-            const isOpen  = openRoom === room.id
+            const isOpen     = openRoom === room.id
             const isComplete = done === total
 
             return (
-              <div key={room.id} className={`bg-white border rounded-2xl overflow-hidden transition-all ${isOpen ? color.ring : 'border-parchment'}`}
+              <div key={room.id}
+                className={`bg-white border rounded-2xl overflow-hidden transition-all ${isOpen ? c.border + ' ring-1' : 'border-parchment'}`}
                 style={{ boxShadow: 'var(--shadow-card)' }}>
 
                 {/* Room header */}
                 <button
                   onClick={() => setOpenRoom(isOpen ? '' : room.id)}
-                  className="w-full flex items-center gap-4 px-5 py-4 hover:bg-cream/50 transition-colors text-left"
+                  className="w-full flex items-center gap-4 px-5 py-4 hover:bg-cream/40 transition-colors text-left"
                 >
                   <span className="text-2xl">{room.icon}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold text-ink">{room.name}</p>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <p className="font-semibold text-ink text-sm">{room.name}</p>
                       {isComplete && (
-                        <span className="text-[11px] bg-green text-cream px-2 py-0.5 rounded-full font-medium">Complete!</span>
+                        <span className="text-[10px] bg-green text-cream px-2 py-0.5 rounded-full font-medium">✓ Complete</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 mt-1.5">
+                    <div className="flex items-center gap-2">
                       <div className="flex-1 h-1.5 bg-cream-dark rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full transition-all duration-500 ${color.bar}`} style={{ width: `${pct}%` }} />
+                        <div className={`h-full rounded-full transition-all duration-500 ${c.bar}`} style={{ width: `${pct}%` }} />
                       </div>
-                      <span className="text-xs text-muted flex-shrink-0">{done}/{total}</span>
+                      <span className="text-[11px] text-muted flex-shrink-0">{done}/{total}</span>
                     </div>
                   </div>
-                  <span className="text-muted text-sm">{isOpen ? '▲' : '▼'}</span>
+                  <span className="text-muted text-xs ml-1">{isOpen ? '▲' : '▼'}</span>
                 </button>
 
                 {/* Bundles */}
                 {isOpen && (
-                  <div className={`px-5 pb-5 pt-1 ${color.bg} border-t border-parchment/50`}>
-                    <div className="space-y-4 mt-3">
-                      {room.bundles.map((bundle) => {
-                        const bp = bundleProgress(bundle, completed)
-                        return (
-                          <div key={bundle.id}>
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <p className="text-sm font-semibold text-ink">{bundle.name} Bundle</p>
-                                {bp.done && (
-                                  <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${color.done}`}>Done</span>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2 text-xs text-muted">
-                                {bundle.required && (
-                                  <span className="italic">pick {bundle.required}</span>
-                                )}
-                                <span className="text-green font-medium">→ {bundle.reward}</span>
-                              </div>
-                            </div>
+                  <div className={`border-t border-parchment/50 ${c.bg} divide-y divide-parchment/40`}>
+                    {room.bundles.map((bundle) => {
+                      const bp = bundleProgress(bundle, completed)
+                      return (
+                        <div key={bundle.id} className="px-5 py-4">
 
-                            <div className="flex flex-wrap gap-2">
-                              {bundle.items.map((item) => {
-                                const key  = `${bundle.id}-${item.id}`
-                                const done = completed[key] ?? false
-                                return (
-                                  <button
-                                    key={item.id}
-                                    onClick={() => toggle(bundle.id, item.id)}
-                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${
-                                      done
-                                        ? `${color.done} border-transparent line-through opacity-60`
-                                        : 'bg-white border-parchment text-ink hover:border-brown-light'
-                                    }`}
-                                  >
-                                    {done ? '✓' : '○'}
-                                    {item.name}
-                                    {item.quantity && <span className="opacity-70">×{item.quantity}</span>}
-                                    {item.quality  && <span className="opacity-70">({item.quality})</span>}
-                                  </button>
-                                )
-                              })}
+                          {/* Bundle header */}
+                          <div className="flex items-center justify-between gap-3 mb-3">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <p className="text-sm font-semibold text-ink truncate">{bundle.name} Bundle</p>
+                              {bp.done && (
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${c.tag}`}>Done</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              {bundle.required && (
+                                <span className="text-[10px] bg-cream-dark text-muted px-2 py-0.5 rounded-full">
+                                  {bp.count}/{bundle.required} needed
+                                </span>
+                              )}
+                              <span className="text-[10px] text-green font-medium">→ {bundle.reward}</span>
                             </div>
                           </div>
-                        )
-                      })}
-                    </div>
+
+                          {/* Items */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                            {bundle.items.map((item) => {
+                              const key  = `${bundle.id}-${item.id}`
+                              const done = completed[key] ?? false
+                              return (
+                                <button
+                                  key={item.id}
+                                  onClick={() => toggle(bundle.id, item.id)}
+                                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-all ${
+                                    done
+                                      ? 'bg-white/50 border-transparent opacity-50'
+                                      : 'bg-white border-parchment/80 hover:border-brown-light hover:shadow-sm'
+                                  }`}
+                                >
+                                  {/* Checkbox */}
+                                  <div className={`w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all ${
+                                    done ? c.check : 'border-2 border-parchment bg-cream'
+                                  }`}>
+                                    {done && <span className="text-[10px] font-bold">✓</span>}
+                                  </div>
+
+                                  {/* Name + meta */}
+                                  <div className="flex-1 min-w-0">
+                                    <p className={`text-sm font-medium leading-tight ${done ? 'line-through text-muted' : 'text-ink'}`}>
+                                      {item.name}
+                                    </p>
+                                    {(item.quantity || item.quality) && (
+                                      <p className="text-[11px] mt-0.5 flex items-center gap-1.5">
+                                        {item.quantity && <span className="text-muted">×{item.quantity}</span>}
+                                        {item.quality  && <span className={QUALITY_STYLE[item.quality] ?? 'text-muted'}>{item.quality}</span>}
+                                      </p>
+                                    )}
+                                  </div>
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 )}
-
               </div>
             )
           })}
