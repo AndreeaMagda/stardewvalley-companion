@@ -117,3 +117,34 @@ export const VILLAGER_SPRITES: Record<string, string> = {
 export function villagerSprite(name: string): string | undefined {
   return VILLAGER_SPRITES[name]
 }
+
+const T = 'https://stardewvalleywiki.com/mediawiki/images/thumb'
+
+export const RESOURCE_SPRITES: Record<string, string> = {
+  // Basic Materials
+  'Wood':               `${T}/d/df/Wood.png/24px-Wood.png`,
+  'Stone':              `${T}/d/d4/Stone.png/24px-Stone.png`,
+  'Fiber':              `${T}/4/45/Fiber.png/24px-Fiber.png`,
+  'Sap':                `${T}/7/73/Sap.png/24px-Sap.png`,
+  'Hardwood':           `${T}/e/ed/Hardwood.png/24px-Hardwood.png`,
+  // Ores
+  'Coal':               `${T}/a/a7/Coal.png/24px-Coal.png`,
+  'Copper Ore':         `${T}/7/78/Copper_Ore.png/24px-Copper_Ore.png`,
+  'Iron Ore':           `${T}/8/87/Iron_Ore.png/24px-Iron_Ore.png`,
+  'Gold Ore':           `${T}/f/f7/Gold_Ore.png/24px-Gold_Ore.png`,
+  'Iridium Ore':        `${T}/e/e9/Iridium_Ore.png/24px-Iridium_Ore.png`,
+  // Farming Supplies
+  'Mixed Seeds':        `${T}/2/2e/Mixed_Seeds.png/24px-Mixed_Seeds.png`,
+  'Basic Fertilizer':   `${B}/9/9b/Basic_Fertilizer.png`,
+  'Quality Fertilizer': `${B}/a/a0/Quality_Fertilizer.png`,
+  'Speed-Gro':          `${B}/9/94/Speed-Gro.png`,
+  // Combat & Fishing
+  'Bait':               `${B}/f/ff/Bait.png`,
+  'Bomb':               `${B}/3/3b/Bomb.png`,
+  'Cherry Bomb':        `${B}/1/1b/Cherry_Bomb.png`,
+  'Mega Bomb':          `${B}/4/4f/Mega_Bomb.png`,
+}
+
+export function resourceSprite(name: string): string | undefined {
+  return RESOURCE_SPRITES[name]
+}

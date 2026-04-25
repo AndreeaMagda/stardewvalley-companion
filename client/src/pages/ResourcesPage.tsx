@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Resource } from '@shared'
 import { supabase } from '../api/supabase'
 import { useUserId } from '../hooks/useUserId'
+import { resourceSprite } from '../data/sprites'
 
 const RESOURCE_GROUPS: { label: string; icon: string; items: { name: string; hint: string }[] }[] = [
   {
@@ -131,6 +132,12 @@ export default function ResourcesPage() {
                       className="bg-white border border-parchment rounded-2xl px-5 py-3.5 flex items-center gap-4 hover:border-brown-pale transition-all"
                       style={{ boxShadow: 'var(--shadow-card)' }}>
 
+                      {resourceSprite(name)
+                        ? <img src={resourceSprite(name)} alt={name} width={24} height={24}
+                            style={{ imageRendering: 'pixelated', flexShrink: 0 }}
+                            referrerPolicy="no-referrer" />
+                        : null
+                      }
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-ink">{name}</p>
                         <p className="text-xs text-muted mt-0.5">{hint}</p>
