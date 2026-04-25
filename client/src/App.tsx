@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router'
+import { createBrowserRouter, RouterProvider } from 'react-router'
 import Layout from './components/Layout'
+import HomePage from './pages/HomePage'
 import GardenPage from './pages/GardenPage'
 import CropsPage from './pages/CropsPage'
 import ResourcesPage from './pages/ResourcesPage'
@@ -10,7 +11,6 @@ import CalendarPage from './pages/CalendarPage'
 import BundlesPage from './pages/BundlesPage'
 import FishPage from './pages/FishPage'
 import MiningPage from './pages/MiningPage'
-import LoginPage from './pages/LoginPage'
 import { useAuth } from './hooks/useAuth'
 import { useAppStore } from './store/useAppStore'
 
@@ -19,7 +19,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <Layout />,
     children: [
-      { index: true, element: <Navigate to="/garden" replace /> },
+      { index: true, element: <HomePage /> },
       { path: 'garden',    element: <GardenPage /> },
       { path: 'crops',     element: <CropsPage /> },
       { path: 'bundles',   element: <BundlesPage /> },
