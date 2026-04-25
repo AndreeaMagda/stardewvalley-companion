@@ -23,6 +23,7 @@ export default function BirthdaysPage() {
   const [expanded, setExpanded]         = useState<string | null>(null)
 
   const load = async () => {
+    if (!userId) { setGifted([]); return }
     const { data } = await supabase
       .from('gifted_birthdays').select('*')
       .eq('user_id', userId).eq('year', currentYear)
@@ -35,6 +36,14 @@ export default function BirthdaysPage() {
 
   const toggleGifted = async (name: string) => {
     const existing = gifted.find((g) => g.villager_name === name)
+    if (!userId) {
+      if (existing) {
+        setGifted((prev) => prev.map((g) => g.id === existing.id ? { ...g, gifted: !g.gifted } : g))
+      } else {
+        setGifted((prev) => [...prev, { id: `guest-${name}`, villager_name: name, year: currentYear, gifted: true, user_id: '', created_at: '' }])
+      }
+      return
+    }
     if (existing) {
       await supabase.from('gifted_birthdays').update({ gifted: !existing.gifted }).eq('id', existing.id)
       setGifted((prev) => prev.map((g) => g.id === existing.id ? { ...g, gifted: !g.gifted } : g))

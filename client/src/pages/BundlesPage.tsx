@@ -47,6 +47,7 @@ export default function BundlesPage() {
   useEffect(() => {
     const load = async () => {
       setLoading(true)
+      if (!userId) { setCompleted({}); setLoading(false); return }
       const { data } = await supabase
         .from('bundle_items')
         .select('bundle_id, item_id, completed')
@@ -65,6 +66,7 @@ export default function BundlesPage() {
     const key     = `${bundleId}-${itemId}`
     const current = completed[key] ?? false
     setCompleted((prev) => ({ ...prev, [key]: !current }))
+    if (!userId) return
     await supabase.from('bundle_items').upsert(
       { user_id: userId, bundle_id: bundleId, item_id: itemId, completed: !current },
       { onConflict: 'user_id,bundle_id,item_id' }

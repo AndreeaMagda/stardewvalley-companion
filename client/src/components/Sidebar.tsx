@@ -26,7 +26,7 @@ const SEASON_COLOR: Record<Season, string> = {
 }
 
 export default function Sidebar() {
-  const { currentDay, currentSeason, currentYear, setDay, setSeason, setYear, saveSettings } = useAppStore()
+  const { currentDay, currentSeason, currentYear, setDay, setSeason, setYear, saveSettings, userName, userAvatar, userId } = useAppStore()
 
   return (
     <aside className="w-56 min-h-screen flex flex-col bg-green" style={{ borderRight: '1px solid rgba(255,255,255,0.07)' }}>
@@ -117,15 +117,35 @@ export default function Sidebar() {
         </p>
       </div>
 
-      {/* Sign out */}
-      <div className="px-3 mb-4">
-        <button
-          onClick={() => supabase.auth.signOut()}
-          className="w-full flex items-center justify-center gap-2 text-xs text-green-pale/40 hover:text-green-pale/70 transition-colors py-2 rounded-xl hover:bg-white/5"
-        >
-          <LogOut size={13} />
-          Sign out
-        </button>
+      {/* User + sign out */}
+      <div className="px-3 mb-4 space-y-1">
+        {userId ? (
+          <>
+            <div className="flex items-center gap-2.5 px-3 py-2">
+              {userAvatar
+                ? <img src={userAvatar} alt={userName ?? ''} width={28} height={28} className="rounded-full flex-shrink-0" />
+                : <div className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center flex-shrink-0 text-xs text-cream font-medium">
+                    {userName?.[0] ?? '?'}
+                  </div>
+              }
+              <span className="text-xs text-green-pale/70 truncate">{userName ?? 'Player'}</span>
+            </div>
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="w-full flex items-center justify-center gap-2 text-xs text-green-pale/40 hover:text-green-pale/70 transition-colors py-2 rounded-xl hover:bg-white/5"
+            >
+              <LogOut size={13} />
+              Sign out
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })}
+            className="w-full flex items-center justify-center gap-2 text-xs bg-white/10 hover:bg-white/20 transition-colors text-cream py-2.5 rounded-xl font-medium"
+          >
+            Sign in with Google
+          </button>
+        )}
       </div>
 
     </aside>

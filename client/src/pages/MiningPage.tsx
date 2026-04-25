@@ -74,6 +74,7 @@ export default function MiningPage() {
 
   useEffect(() => {
     const load = async () => {
+      if (!userId) return
       const { data } = await supabase
         .from('mine_progress')
         .select('*')
@@ -88,6 +89,7 @@ export default function MiningPage() {
   }, [])
 
   const save = async () => {
+    if (!userId) { setProgress(draft); setSaved(true); setTimeout(() => setSaved(false), 2000); return }
     setSaving(true)
     await supabase.from('mine_progress').upsert(
       { user_id: userId, mines_floor: draft.mines_floor, skull_floor: draft.skull_floor, updated_at: new Date().toISOString() },

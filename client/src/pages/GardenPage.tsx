@@ -78,6 +78,7 @@ export default function GardenPage() {
 
   const load = async () => {
     setLoading(true)
+    if (!userId) { setEntries([]); setLoading(false); return }
     const { data } = await supabase
       .from('garden_entries').select('*').eq('user_id', userId)
       .order('created_at', { ascending: false })
@@ -118,6 +119,7 @@ export default function GardenPage() {
   // ── add / harvest / delete ───────────────────────────────────────────────────
 
   const addEntry = async () => {
+    if (!userId) return
     setAddError(null)
     const { error } = await supabase.from('garden_entries').insert({
       user_id: userId, crop_id: newCropId,
@@ -129,12 +131,14 @@ export default function GardenPage() {
   }
 
   const markHarvested = async (entry: GardenEntry) => {
+    if (!userId) return
     await supabase.from('garden_entries')
       .update({ harvested: true, updated_at: new Date().toISOString() }).eq('id', entry.id)
     setEntries((prev) => prev.map((e) => e.id === entry.id ? { ...e, harvested: true } : e))
   }
 
   const deleteEntry = async (id: string) => {
+    if (!userId) return
     await supabase.from('garden_entries').delete().eq('id', id)
     setEntries((prev) => prev.filter((e) => e.id !== id))
   }

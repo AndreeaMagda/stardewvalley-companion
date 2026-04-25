@@ -4,6 +4,7 @@ import Sidebar from './Sidebar'
 import BottomNav from './BottomNav'
 import DateSheet from './DateSheet'
 import { useAppStore } from '../store/useAppStore'
+import { supabase } from '../api/supabase'
 
 const SEASON_TEXT: Record<string, string> = {
   spring: 'text-spring', summer: 'text-summer', fall: 'text-fall', winter: 'text-winter',
@@ -40,6 +41,19 @@ export default function Layout() {
             <span className="text-cream/50 text-xs">✏️</span>
           </button>
         </header>
+
+        {/* Sign-in banner for guests */}
+        {!userId && (
+          <div className="bg-cream-dark border-b border-parchment px-4 py-2.5 flex items-center justify-between gap-3 flex-shrink-0">
+            <p className="text-sm text-muted">Sign in to save your progress across sessions.</p>
+            <button
+              onClick={() => supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })}
+              className="text-xs font-medium text-cream bg-green hover:bg-green-light px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap flex-shrink-0"
+            >
+              Sign in
+            </button>
+          </div>
+        )}
 
         {/* Page content — padded bottom on mobile for bottom nav */}
         <main className="flex-1 overflow-auto pb-20 md:pb-0">

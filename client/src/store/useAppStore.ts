@@ -4,11 +4,14 @@ import { supabase } from '../api/supabase'
 
 interface AppState {
   userId: string | null
+  userName: string | null
+  userAvatar: string | null
   currentDay: number
   currentSeason: Season
   currentYear: number
   settingsLoaded: boolean
   setUserId: (id: string | null) => void
+  setUserMeta: (name: string | null, avatar: string | null) => void
   setDay: (day: number) => void
   setSeason: (season: Season) => void
   setYear: (year: number) => void
@@ -18,12 +21,15 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set, get) => ({
   userId: null,
+  userName: null,
+  userAvatar: null,
   currentDay: 1,
   currentSeason: 'spring',
   currentYear: 1,
   settingsLoaded: false,
 
   setUserId: (id) => set({ userId: id }),
+  setUserMeta: (name, avatar) => set({ userName: name, userAvatar: avatar }),
   setDay: (day) => set({ currentDay: day }),
   setSeason: (season) => set({ currentSeason: season }),
   setYear: (year) => set({ currentYear: year }),

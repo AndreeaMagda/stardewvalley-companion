@@ -55,6 +55,7 @@ export default function ResourcesPage() {
 
   const load = async () => {
     setLoading(true)
+    if (!userId) { setLoading(false); return }
     const { data } = await supabase.from('resources').select('*').eq('user_id', userId)
     const existing     = (data as Resource[]) ?? []
     const existingTypes = new Set(existing.map((r) => r.type))
@@ -76,6 +77,7 @@ export default function ResourcesPage() {
   const getResource = (name: string) => resources.find((r) => r.type === name)
 
   const updateQty = async (name: string, delta: number) => {
+    if (!userId) return
     const r = getResource(name)
     if (!r) return
     const newQty = Math.max(0, r.quantity + delta)
@@ -84,6 +86,7 @@ export default function ResourcesPage() {
   }
 
   const setQty = async (name: string, value: number) => {
+    if (!userId) return
     const r = getResource(name)
     if (!r) return
     const newQty = Math.max(0, value)
@@ -92,6 +95,7 @@ export default function ResourcesPage() {
   }
 
   const resetAll = async () => {
+    if (!userId) return
     setResetting(true)
     await Promise.all(
       resources.map((r) =>

@@ -1,5 +1,5 @@
 import { useAppStore } from '../store/useAppStore'
 
-export function useUserId(): string {
-  return useAppStore((s) => s.userId) as string
+export function useUserId(): string | null {
+  return useAppStore((s) => s.userId)
 }

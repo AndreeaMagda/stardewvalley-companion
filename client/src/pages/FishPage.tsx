@@ -103,6 +103,7 @@ export default function FishPage() {
 
   const load = async () => {
     setLoading(true)
+    if (!userId) { setCaught([]); setLoading(false); return }
     const { data } = await supabase
       .from('caught_fish')
       .select('*')
@@ -118,6 +119,14 @@ export default function FishPage() {
 
   const toggleCaught = async (fish: Fish) => {
     const existing = caught.find((c) => c.fish_id === fish.id)
+    if (!userId) {
+      if (existing) {
+        setCaught((prev) => prev.map((c) => c.id === existing.id ? { ...c, caught: !existing.caught } : c))
+      } else {
+        setCaught((prev) => [...prev, { id: `guest-${fish.id}`, fish_id: fish.id, caught: true, user_id: '', created_at: '' }])
+      }
+      return
+    }
     if (existing) {
       const next = !existing.caught
       await supabase.from('caught_fish').update({ caught: next }).eq('id', existing.id)

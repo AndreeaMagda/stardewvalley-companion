@@ -35,11 +35,16 @@ const router = createBrowserRouter([
 
 export default function App() {
   const { user, loading } = useAuth()
-  const setUserId = useAppStore((s) => s.setUserId)
+  const setUserId   = useAppStore((s) => s.setUserId)
+  const setUserMeta = useAppStore((s) => s.setUserMeta)
 
   useEffect(() => {
     setUserId(user?.id ?? null)
-  }, [user?.id, setUserId])
+    setUserMeta(
+      user?.user_metadata?.full_name ?? null,
+      user?.user_metadata?.avatar_url ?? null,
+    )
+  }, [user?.id, setUserId, setUserMeta])
 
   if (loading) {
     return (
@@ -48,8 +53,6 @@ export default function App() {
       </div>
     )
   }
-
-  if (!user) return <LoginPage />
 
   return <RouterProvider router={router} />
 }
