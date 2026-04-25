@@ -3,6 +3,7 @@ import { VILLAGER_BIRTHDAYS } from '@shared'
 import type { GiftedBirthday, Season } from '@shared'
 import { supabase, USER_ID } from '../api/supabase'
 import { useAppStore } from '../store/useAppStore'
+import { villagerSprite } from '../data/sprites'
 
 const SEASON_TABS: Season[] = ['spring', 'summer', 'fall', 'winter']
 
@@ -73,7 +74,12 @@ export default function BirthdaysPage() {
       {todaysBirthday && (
         <div className="bg-brown-pale border border-brown/20 rounded-2xl px-5 py-4 mb-5 flex items-center gap-4"
           style={{ boxShadow: 'var(--shadow-card)' }}>
-          <span className="text-3xl">🎂</span>
+          {villagerSprite(todaysBirthday.name)
+            ? <img src={villagerSprite(todaysBirthday.name)} alt={todaysBirthday.name}
+                width={40} style={{ imageRendering: 'pixelated', flexShrink: 0 }}
+                referrerPolicy="no-referrer" />
+            : <span className="text-3xl">🎂</span>
+          }
           <div className="flex-1">
             <p className="font-semibold text-ink">It's {todaysBirthday.name}'s birthday today!</p>
             <p className="text-xs text-muted mt-0.5">
@@ -141,13 +147,21 @@ export default function BirthdaysPage() {
               }`}
               style={{ boxShadow: today ? 'var(--shadow-card)' : undefined }}>
 
-              <div className="flex items-center gap-4 px-5 py-3.5">
+              <div className="flex items-center gap-3 px-5 py-3.5">
                 {/* Day badge */}
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm ${
                   today ? 'bg-brown text-cream' : `${style.soft} ${style.text}`
                 }`}>
                   {v.day}
                 </div>
+
+                {/* Portrait */}
+                {villagerSprite(v.name)
+                  ? <img src={villagerSprite(v.name)} alt={v.name}
+                      width={32} style={{ imageRendering: 'pixelated', flexShrink: 0 }}
+                      referrerPolicy="no-referrer" />
+                  : null
+                }
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">

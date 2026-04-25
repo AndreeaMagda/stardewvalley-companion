@@ -74,3 +74,46 @@ export const MINE_SPRITES: Record<string, string> = {
 export function mineSprite(name: string): string | undefined {
   return MINE_SPRITES[name]
 }
+
+const V = 'https://stardewvalleywiki.com/mediawiki/images'
+
+export const VILLAGER_SPRITES: Record<string, string> = {
+  'Alex':       `${V}/0/04/Alex.png`,
+  'Elliott':    `${V}/b/bd/Elliott.png`,
+  'Harvey':     `${V}/9/95/Harvey.png`,
+  'Sam':        `${V}/9/94/Sam.png`,
+  'Sebastian':  `${V}/a/a8/Sebastian.png`,
+  'Shane':      `${V}/8/8b/Shane.png`,
+  'Abigail':    `${V}/8/88/Abigail.png`,
+  'Emily':      `${V}/2/28/Emily.png`,
+  'Haley':      `${V}/1/1b/Haley.png`,
+  'Leah':       `${V}/e/e6/Leah.png`,
+  'Maru':       `${V}/f/f8/Maru.png`,
+  'Penny':      `${V}/a/ab/Penny.png`,
+  'Caroline':   `${V}/8/87/Caroline.png`,
+  'Clint':      `${V}/3/31/Clint.png`,
+  'Demetrius':  `${V}/f/f9/Demetrius.png`,
+  'Dwarf':      `${V}/e/ed/Dwarf.png`,
+  'Evelyn':     `${V}/8/8e/Evelyn.png`,
+  'George':     `${V}/7/78/George.png`,
+  'Gus':        `${V}/5/52/Gus.png`,
+  'Jas':        `${V}/5/55/Jas.png`,
+  'Jodi':       `${V}/4/41/Jodi.png`,
+  'Kent':       `${V}/9/99/Kent.png`,
+  'Krobus':     `${V}/7/71/Krobus.png`,
+  'Leo':        `${V}/1/1d/Leo.png`,
+  'Lewis':      `${V}/2/2b/Lewis.png`,
+  'Linus':      `${V}/3/31/Linus.png`,
+  'Marnie':     `${V}/5/52/Marnie.png`,
+  'Pam':        `${V}/d/da/Pam.png`,
+  'Pierre':     `${V}/7/7e/Pierre.png`,
+  'Robin':      `${V}/1/1b/Robin.png`,
+  'Sandy':      `${V}/4/4e/Sandy.png`,
+  'Vincent':    `${V}/f/f1/Vincent.png`,
+  'Willy':      `${V}/8/82/Willy.png`,
+  'Wizard':     `${V}/c/c7/Wizard.png`,
+}
+
+export function villagerSprite(name: string): string | undefined {
+  return VILLAGER_SPRITES[name]
+}
