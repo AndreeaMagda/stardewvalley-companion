@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import Layout from './components/Layout'
 import HomePage from './pages/HomePage'
+import TodayPage from './pages/TodayPage'
 import GardenPage from './pages/GardenPage'
 import CropsPage from './pages/CropsPage'
 import ResourcesPage from './pages/ResourcesPage'
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { index: true, element: <HomePage /> },
+      { path: 'today',     element: <TodayPage /> },
       { path: 'garden',    element: <GardenPage /> },
       { path: 'crops',     element: <CropsPage /> },
       { path: 'bundles',   element: <BundlesPage /> },

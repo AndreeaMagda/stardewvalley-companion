@@ -1,18 +1,18 @@
 import { NavLink } from 'react-router'
 import {
-  Home, Sprout, Wheat, Building2, Gift,
-  CalendarDays, Fish, Pickaxe,
+  Home, CalendarCheck, Sprout, Wheat, Building2,
+  Gift, Fish, Pickaxe,
 } from 'lucide-react'
 
 const NAV = [
-  { to: '/',          label: 'Home',      Icon: Home       },
-  { to: '/garden',    label: 'Garden',    Icon: Sprout     },
-  { to: '/crops',     label: 'Crops',     Icon: Wheat      },
-  { to: '/bundles',   label: 'Bundles',   Icon: Building2  },
-  { to: '/birthdays', label: 'Birthdays', Icon: Gift       },
-  { to: '/calendar',  label: 'Calendar',  Icon: CalendarDays },
-  { to: '/fish',      label: 'Fish',      Icon: Fish       },
-  { to: '/mining',    label: 'Mining',    Icon: Pickaxe    },
+  { to: '/',        label: 'Home',    Icon: Home          },
+  { to: '/today',   label: 'Today',   Icon: CalendarCheck },
+  { to: '/garden',  label: 'Garden',  Icon: Sprout        },
+  { to: '/crops',   label: 'Crops',   Icon: Wheat         },
+  { to: '/bundles', label: 'Bundles', Icon: Building2     },
+  { to: '/birthdays', label: 'Gifts', Icon: Gift          },
+  { to: '/fish',    label: 'Fish',    Icon: Fish          },
+  { to: '/mining',  label: 'Mining',  Icon: Pickaxe       },
 ]
 
 export default function BottomNav() {

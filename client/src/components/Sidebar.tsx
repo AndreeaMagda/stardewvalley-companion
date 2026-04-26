@@ -2,12 +2,14 @@ import { NavLink } from 'react-router'
 import {
   Sprout, Wheat, Building2, Package, Gift,
   CalendarDays, Fish, Pickaxe, BookOpen, LogOut,
+  CalendarCheck,
 } from 'lucide-react'
 import { useAppStore } from '../store/useAppStore'
 import type { Season } from '@shared'
 import { supabase } from '../api/supabase'
 
 const NAV = [
+  { to: '/today',     label: 'Today',     Icon: CalendarCheck },
   { to: '/garden',    label: 'Garden',    Icon: Sprout     },
   { to: '/crops',     label: 'Crops',     Icon: Wheat      },
   { to: '/bundles',   label: 'Bundles',   Icon: Building2  },
