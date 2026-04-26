@@ -38,15 +38,15 @@ function bestValue(crop: Crop): number {
 }
 
 function profitPerDay(crop: Crop): number {
-  const SEASON_DAYS = 28
-  if (!crop.growDays || crop.growDays > SEASON_DAYS) return 0
+  const availableDays = crop.seasons.length * 28
+  if (!crop.growDays || crop.growDays > availableDays) return 0
   let harvests: number
   if (crop.regrowDays) {
-    harvests = 1 + Math.floor((SEASON_DAYS - crop.growDays) / crop.regrowDays)
+    harvests = 1 + Math.floor((availableDays - crop.growDays) / crop.regrowDays)
   } else {
-    harvests = Math.floor(SEASON_DAYS / crop.growDays)
+    harvests = Math.floor(availableDays / crop.growDays)
   }
-  return Math.max(0, Math.round((crop.sellPrice * harvests - crop.seedCost) / SEASON_DAYS))
+  return Math.max(0, Math.round((crop.sellPrice * harvests - crop.seedCost) / availableDays))
 }
 
 export default function CropsPage() {
@@ -152,13 +152,18 @@ export default function CropsPage() {
                 </div>
 
                 {/* Seasons */}
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2 items-center">
                   {crop.seasons.map((s) => (
                     <span key={s} className="text-[11px] flex items-center gap-1 text-muted capitalize">
                       <span className={`w-2 h-2 rounded-full inline-block ${SEASON_DOT[s]}`} />
                       {s}
                     </span>
                   ))}
+                  {crop.seasons.length > 1 && (
+                    <span className="text-[10px] bg-brown/10 text-brown px-1.5 py-0.5 rounded-full font-medium ml-auto">
+                      56d window
+                    </span>
+                  )}
                 </div>
 
                 {/* Prices */}
