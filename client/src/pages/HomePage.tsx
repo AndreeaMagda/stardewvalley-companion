@@ -4,7 +4,7 @@ import {
   Sprout, Wheat, Building2, Package, Gift,
   CalendarDays, Fish as FishIcon, Pickaxe, BookOpen,
   Sun, Leaf, Snowflake, CalendarCheck, type LucideIcon,
-  TreeDeciduous, Heart, ChefHat, FlaskConical,
+  TreeDeciduous, Heart, ChefHat, FlaskConical, Egg,
 } from 'lucide-react'
 import { VILLAGER_BIRTHDAYS, SEASONAL_EVENTS, FISH } from '@shared'
 import type { Season } from '@shared'
@@ -42,6 +42,7 @@ const NAV_CARDS = [
   { to: '/foraging',  label: 'Foraging',  Icon: TreeDeciduous, desc: 'Wild items, locations & prices'  },
   { to: '/gifts',     label: 'Gifts',     Icon: Heart,         desc: 'What every villager loves'        },
   { to: '/cooking',   label: 'Cooking',   Icon: ChefHat,       desc: 'Recipes, ingredients & buffs'     },
+  { to: '/animals',   label: 'Animals',   Icon: Egg,           desc: 'Barn & coop animals, heart tracker' },
   { to: '/tips',      label: 'Tips',      Icon: BookOpen,       desc: 'Tips for new farmers'            },
 ]
 

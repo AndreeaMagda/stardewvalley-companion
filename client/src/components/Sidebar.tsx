@@ -2,7 +2,7 @@ import { NavLink } from 'react-router'
 import {
   Sprout, Wheat, Building2, Package, Gift,
   CalendarDays, Fish, Pickaxe, BookOpen, LogOut,
-  CalendarCheck, Leaf, ChefHat, Heart, FlaskConical,
+  CalendarCheck, Leaf, ChefHat, Heart, FlaskConical, Egg,
 } from 'lucide-react'
 import { useAppStore } from '../store/useAppStore'
 import type { Season } from '@shared'
@@ -22,6 +22,7 @@ const NAV_GROUPS = [
       { to: '/bundles',   label: 'Bundles',   Icon: Building2  },
       { to: '/resources', label: 'Resources', Icon: Package    },
       { to: '/birthdays', label: 'Birthdays', Icon: Gift       },
+      { to: '/animals',   label: 'Animals',   Icon: Egg        },
     ],
   },
   {

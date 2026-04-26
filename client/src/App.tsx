@@ -16,6 +16,7 @@ import ForagingPage from './pages/ForagingPage'
 import GiftsPage from './pages/GiftsPage'
 import ArtisanPage from './pages/ArtisanPage'
 import CookingPage from './pages/CookingPage'
+import AnimalsPage from './pages/AnimalsPage'
 import { useAuth } from './hooks/useAuth'
 import { useAppStore } from './store/useAppStore'
 
@@ -38,6 +39,7 @@ const router = createBrowserRouter([
       { path: 'gifts',     element: <GiftsPage /> },
       { path: 'artisan',   element: <ArtisanPage /> },
       { path: 'cooking',   element: <CookingPage /> },
+      { path: 'animals',   element: <AnimalsPage /> },
       { path: 'tips',      element: <TipsPage /> },
     ],
   },

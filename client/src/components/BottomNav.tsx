@@ -4,7 +4,7 @@ import {
   Home, CalendarCheck, Sprout, Wheat,
   MoreHorizontal, X,
   Building2, Package, Gift, CalendarDays, Fish,
-  Pickaxe, TreeDeciduous, Heart, ChefHat, FlaskConical, BookOpen,
+  Pickaxe, TreeDeciduous, Heart, ChefHat, FlaskConical, BookOpen, Egg,
 } from 'lucide-react'
 
 const PRIMARY = [
@@ -19,6 +19,7 @@ const MORE_ITEMS = [
   { to: '/bundles',   label: 'Bundles',   Icon: Building2     },
   { to: '/resources', label: 'Resources', Icon: Package       },
   { to: '/birthdays', label: 'Birthdays', Icon: Gift          },
+  { to: '/animals',   label: 'Animals',   Icon: Egg           },
   { to: '/fish',      label: 'Fish',      Icon: Fish          },
   { to: '/mining',    label: 'Mining',    Icon: Pickaxe       },
   { to: '/foraging',  label: 'Foraging',  Icon: TreeDeciduous },
