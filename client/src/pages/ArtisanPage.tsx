@@ -4,6 +4,7 @@ import type { Crop, Season } from '@shared'
 import { useAppStore } from '../store/useAppStore'
 import { cropSprite } from '../data/sprites'
 import { FlaskConical, Sprout } from 'lucide-react'
+import { artisanSprite } from '../data/sprites'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -161,44 +162,58 @@ export default function ArtisanPage() {
                 </div>
 
                 {/* Jar */}
-                <div className={`rounded-xl p-3 text-center border transition-all ${
-                  bestIsJar
-                    ? 'bg-spring/10 border-spring/30'
-                    : 'bg-cream-dark border-transparent'
-                }`}>
-                  <p className="text-[10px] text-muted uppercase tracking-wide mb-1">
-                    {jar !== null ? jarLabel(crop) : '—'}
-                  </p>
-                  {jar !== null ? (
-                    <>
-                      <p className={`text-sm font-bold ${bestIsJar ? 'text-green' : 'text-ink'}`}>{fmt(jar)}g</p>
-                      <p className="text-[10px] text-muted mt-0.5">×{(jar / crop.sellPrice).toFixed(1)}</p>
-                    </>
-                  ) : (
-                    <p className="text-sm text-muted/40">—</p>
-                  )}
-                  {bestIsJar && <p className="text-[9px] text-green font-semibold mt-1 uppercase tracking-wide">Best</p>}
-                </div>
+                {(() => {
+                  const label = jar !== null ? jarLabel(crop) : null
+                  const sprite = label ? artisanSprite(label) : null
+                  return (
+                    <div className={`rounded-xl p-3 text-center border transition-all ${
+                      bestIsJar ? 'bg-spring/10 border-spring/30' : 'bg-cream-dark border-transparent'
+                    }`}>
+                      {sprite && (
+                        <img src={sprite} alt={label!} width={20} height={20}
+                          style={{ imageRendering: 'pixelated', margin: '0 auto 4px' }}
+                          referrerPolicy="no-referrer" />
+                      )}
+                      <p className="text-[10px] text-muted uppercase tracking-wide mb-1">{label ?? '—'}</p>
+                      {jar !== null ? (
+                        <>
+                          <p className={`text-sm font-bold ${bestIsJar ? 'text-green' : 'text-ink'}`}>{fmt(jar)}g</p>
+                          <p className="text-[10px] text-muted mt-0.5">×{(jar / crop.sellPrice).toFixed(1)}</p>
+                        </>
+                      ) : (
+                        <p className="text-sm text-muted/40">—</p>
+                      )}
+                      {bestIsJar && <p className="text-[9px] text-green font-semibold mt-1 uppercase tracking-wide">Best</p>}
+                    </div>
+                  )
+                })()}
 
                 {/* Keg */}
-                <div className={`rounded-xl p-3 text-center border transition-all ${
-                  bestIsKeg
-                    ? 'bg-spring/10 border-spring/30'
-                    : 'bg-cream-dark border-transparent'
-                }`}>
-                  <p className="text-[10px] text-muted uppercase tracking-wide mb-1">
-                    {keg !== null ? kegLabel(crop) : '—'}
-                  </p>
-                  {keg !== null ? (
-                    <>
-                      <p className={`text-sm font-bold ${bestIsKeg ? 'text-green' : 'text-ink'}`}>{fmt(keg)}g</p>
-                      <p className="text-[10px] text-muted mt-0.5">×{(keg / crop.sellPrice).toFixed(1)}</p>
-                    </>
-                  ) : (
-                    <p className="text-sm text-muted/40">—</p>
-                  )}
-                  {bestIsKeg && <p className="text-[9px] text-green font-semibold mt-1 uppercase tracking-wide">Best</p>}
-                </div>
+                {(() => {
+                  const label = keg !== null ? kegLabel(crop) : null
+                  const sprite = label ? artisanSprite(label) : null
+                  return (
+                    <div className={`rounded-xl p-3 text-center border transition-all ${
+                      bestIsKeg ? 'bg-spring/10 border-spring/30' : 'bg-cream-dark border-transparent'
+                    }`}>
+                      {sprite && (
+                        <img src={sprite} alt={label!} width={20} height={20}
+                          style={{ imageRendering: 'pixelated', margin: '0 auto 4px' }}
+                          referrerPolicy="no-referrer" />
+                      )}
+                      <p className="text-[10px] text-muted uppercase tracking-wide mb-1">{label ?? '—'}</p>
+                      {keg !== null ? (
+                        <>
+                          <p className={`text-sm font-bold ${bestIsKeg ? 'text-green' : 'text-ink'}`}>{fmt(keg)}g</p>
+                          <p className="text-[10px] text-muted mt-0.5">×{(keg / crop.sellPrice).toFixed(1)}</p>
+                        </>
+                      ) : (
+                        <p className="text-sm text-muted/40">—</p>
+                      )}
+                      {bestIsKeg && <p className="text-[9px] text-green font-semibold mt-1 uppercase tracking-wide">Best</p>}
+                    </div>
+                  )
+                })()}
               </div>
 
               {crop.notes && (

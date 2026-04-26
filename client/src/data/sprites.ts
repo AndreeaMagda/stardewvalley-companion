@@ -181,3 +181,16 @@ export const FORAGE_SPRITES: Record<string, string> = {
 export function foragingSprite(name: string): string | undefined {
   return FORAGE_SPRITES[name]
 }
+
+export const ARTISAN_SPRITES: Record<string, string> = {
+  'Wine':     `${W}/6/69/Wine.png/24px-Wine.png`,
+  'Juice':    `${W}/f/f1/Juice.png/24px-Juice.png`,
+  'Jelly':    `${W}/0/05/Jelly.png/24px-Jelly.png`,
+  'Pickles':  `${W}/c/c7/Pickles.png/24px-Pickles.png`,
+  'Pale Ale': `${W}/7/78/Pale_Ale.png/24px-Pale_Ale.png`,
+  'Beer':     `${W}/b/b3/Beer.png/24px-Beer.png`,
+}
+
+export function artisanSprite(name: string): string | undefined {
+  return ARTISAN_SPRITES[name]
+}
