@@ -4,7 +4,7 @@ import {
   Sprout, Wheat, Building2, Package, Gift,
   CalendarDays, Fish as FishIcon, Pickaxe, BookOpen,
   Sun, Leaf, Snowflake, CalendarCheck, type LucideIcon,
-  TreeDeciduous, Heart, ChefHat,
+  TreeDeciduous, Heart, ChefHat, FlaskConical,
 } from 'lucide-react'
 import { VILLAGER_BIRTHDAYS, SEASONAL_EVENTS, FISH } from '@shared'
 import type { Season } from '@shared'
@@ -31,7 +31,8 @@ const SEASON_STYLE: Record<Season, {
 const NAV_CARDS = [
   { to: '/today',     label: 'Today',     Icon: CalendarCheck, desc: 'Your daily briefing'             },
   { to: '/garden',    label: 'Garden',    Icon: Sprout,       desc: 'Plan crops & track harvests'     },
-  { to: '/crops',     label: 'Crops',     Icon: Wheat,        desc: 'Best crops by profit per day'    },
+  { to: '/crops',     label: 'Crops',     Icon: Wheat,         desc: 'Best crops by profit per day'    },
+  { to: '/artisan',   label: 'Artisan',   Icon: FlaskConical,  desc: 'Keg vs jar vs raw comparison'    },
   { to: '/bundles',   label: 'Bundles',   Icon: Building2,    desc: 'Community Center checklist'      },
   { to: '/resources', label: 'Resources', Icon: Package,      desc: 'Materials inventory tracker'     },
   { to: '/birthdays', label: 'Birthdays', Icon: Gift,         desc: 'Never miss a gift day'           },

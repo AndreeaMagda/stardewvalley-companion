@@ -2,7 +2,7 @@ import { NavLink } from 'react-router'
 import {
   Sprout, Wheat, Building2, Package, Gift,
   CalendarDays, Fish, Pickaxe, BookOpen, LogOut,
-  CalendarCheck, Leaf, ChefHat, Heart,
+  CalendarCheck, Leaf, ChefHat, Heart, FlaskConical,
 } from 'lucide-react'
 import { useAppStore } from '../store/useAppStore'
 import type { Season } from '@shared'
@@ -27,7 +27,8 @@ const NAV_GROUPS = [
   {
     label: 'Guide',
     items: [
-      { to: '/crops',    label: 'Crops',    Icon: Wheat      },
+      { to: '/crops',    label: 'Crops',    Icon: Wheat         },
+      { to: '/artisan',  label: 'Artisan',  Icon: FlaskConical  },
       { to: '/fish',     label: 'Fish',     Icon: Fish       },
       { to: '/mining',   label: 'Mining',   Icon: Pickaxe    },
       { to: '/foraging', label: 'Foraging', Icon: Leaf       },
