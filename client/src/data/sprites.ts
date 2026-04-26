@@ -151,31 +151,31 @@ export function resourceSprite(name: string): string | undefined {
 
 export const FORAGE_SPRITES: Record<string, string> = {
   // Spring
-  'Wild Horseradish': `${W}/e/e0/Wild_Horseradish.png/24px-Wild_Horseradish.png`,
-  'Daffodil':         `${W}/1/16/Daffodil.png/24px-Daffodil.png`,
-  'Leek':             `${W}/6/67/Leek.png/24px-Leek.png`,
-  'Dandelion':        `${W}/d/d6/Dandelion.png/24px-Dandelion.png`,
-  'Spring Onion':     `${W}/7/7e/Spring_Onion.png/24px-Spring_Onion.png`,
-  'Salmonberry':      `${W}/6/68/Salmonberry.png/24px-Salmonberry.png`,
+  'Wild Horseradish': `${W}/9/90/Wild_Horseradish.png/24px-Wild_Horseradish.png`,
+  'Daffodil':         `${W}/4/4b/Daffodil.png/24px-Daffodil.png`,
+  'Leek':             `${W}/5/57/Leek.png/24px-Leek.png`,
+  'Dandelion':        `${W}/b/b1/Dandelion.png/24px-Dandelion.png`,
+  'Spring Onion':     `${W}/0/0c/Spring_Onion.png/24px-Spring_Onion.png`,
+  'Salmonberry':      `${W}/5/59/Salmonberry.png/24px-Salmonberry.png`,
   // Summer
   'Grape':            `${W}/c/c2/Grape.png/24px-Grape.png`,
-  'Spice Berry':      `${W}/9/91/Spice_Berry.png/24px-Spice_Berry.png`,
-  'Sweet Pea':        `${W}/4/46/Sweet_Pea.png/24px-Sweet_Pea.png`,
-  'Fiddlehead Fern':  `${W}/b/b7/Fiddlehead_Fern.png/24px-Fiddlehead_Fern.png`,
-  'Red Mushroom':     `${W}/f/f7/Red_Mushroom.png/24px-Red_Mushroom.png`,
+  'Spice Berry':      `${W}/c/c6/Spice_Berry.png/24px-Spice_Berry.png`,
+  'Sweet Pea':        `${W}/d/d9/Sweet_Pea.png/24px-Sweet_Pea.png`,
+  'Fiddlehead Fern':  `${W}/4/48/Fiddlehead_Fern.png/24px-Fiddlehead_Fern.png`,
+  'Red Mushroom':     `${W}/e/e1/Red_Mushroom.png/24px-Red_Mushroom.png`,
   // Fall
-  'Common Mushroom':  `${W}/0/02/Common_Mushroom.png/24px-Common_Mushroom.png`,
-  'Wild Plum':        `${W}/e/e6/Wild_Plum.png/24px-Wild_Plum.png`,
+  'Common Mushroom':  `${W}/2/2e/Common_Mushroom.png/24px-Common_Mushroom.png`,
+  'Wild Plum':        `${W}/3/3b/Wild_Plum.png/24px-Wild_Plum.png`,
   'Hazelnut':         `${W}/3/31/Hazelnut.png/24px-Hazelnut.png`,
-  'Blackberry':       `${W}/1/1b/Blackberry.png/24px-Blackberry.png`,
-  'Chanterelle':      `${W}/6/61/Chanterelle.png/24px-Chanterelle.png`,
-  'Holly':            `${W}/e/ee/Holly.png/24px-Holly.png`,
+  'Blackberry':       `${W}/2/25/Blackberry.png/24px-Blackberry.png`,
+  'Chanterelle':      `${W}/1/1d/Chanterelle.png/24px-Chanterelle.png`,
+  'Holly':            `${W}/b/b8/Holly.png/24px-Holly.png`,
   // Winter
-  'Winter Root':      `${W}/3/3e/Winter_Root.png/24px-Winter_Root.png`,
-  'Crystal Fruit':    `${W}/4/4f/Crystal_Fruit.png/24px-Crystal_Fruit.png`,
-  'Snow Yam':         `${W}/e/e8/Snow_Yam.png/24px-Snow_Yam.png`,
-  'Crocus':           `${W}/e/e4/Crocus.png/24px-Crocus.png`,
-  'Nautilus Shell':   `${W}/9/94/Nautilus_Shell.png/24px-Nautilus_Shell.png`,
+  'Winter Root':      `${W}/1/11/Winter_Root.png/24px-Winter_Root.png`,
+  'Crystal Fruit':    `${W}/1/16/Crystal_Fruit.png/24px-Crystal_Fruit.png`,
+  'Snow Yam':         `${W}/3/3f/Snow_Yam.png/24px-Snow_Yam.png`,
+  'Crocus':           `${W}/2/2f/Crocus.png/24px-Crocus.png`,
+  'Nautilus Shell':   `${W}/a/a4/Nautilus_Shell.png/24px-Nautilus_Shell.png`,
 }
 
 export function foragingSprite(name: string): string | undefined {
