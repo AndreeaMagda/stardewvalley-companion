@@ -1,4 +1,5 @@
 import { supabase } from '../api/supabase'
+import { Sprout } from 'lucide-react'
 
 export default function LoginPage() {
   const signIn = () =>
@@ -13,7 +14,9 @@ export default function LoginPage() {
         className="bg-white border border-parchment rounded-2xl p-10 flex flex-col items-center gap-6 w-full max-w-sm"
         style={{ boxShadow: 'var(--shadow-card)' }}
       >
-        <span className="text-6xl">🌾</span>
+        <div className="w-16 h-16 rounded-2xl bg-green/10 flex items-center justify-center">
+          <Sprout size={32} className="text-green" strokeWidth={1.5} />
+        </div>
 
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-ink">Stardew Companion</h1>

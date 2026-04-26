@@ -3,6 +3,7 @@ import { CROPS } from '@shared'
 import type { Crop, Season } from '@shared'
 import { useAppStore } from '../store/useAppStore'
 import { cropSprite } from '../data/sprites'
+import { Sprout } from 'lucide-react'
 
 type FilterSeason = Season | 'all'
 type SortKey = 'profit' | 'grow' | 'sell' | 'name'
@@ -122,7 +123,7 @@ export default function CropsPage() {
                     ? <img src={cropSprite(crop.id)} alt={crop.name}
                         style={{ imageRendering: 'pixelated', width: 48, height: 48 }}
                         referrerPolicy="no-referrer" />
-                    : <span className="text-3xl">🌱</span>
+                    : <Sprout size={40} className="text-green/40" strokeWidth={1.25} />
                   }
                   <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium capitalize flex-shrink-0 ${TYPE_BADGE[crop.type]}`}>
                     {crop.type}

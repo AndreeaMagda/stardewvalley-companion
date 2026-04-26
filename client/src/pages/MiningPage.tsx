@@ -4,6 +4,7 @@ import type { MineZone } from '@shared'
 import { supabase } from '../api/supabase'
 import { useUserId } from '../hooks/useUserId'
 import { mineSprite } from '../data/sprites'
+import { Pickaxe, Gem, Layers, Fish as FishIcon, type LucideIcon } from 'lucide-react'
 
 type MineProgress = { mines_floor: number; skull_floor: number }
 
@@ -45,12 +46,12 @@ const RARITY_COLOR: Record<string, string> = {
   'very rare': 'text-fall font-semibold',
 }
 
-const TYPE_ICON: Record<string, string> = {
-  ore:     '⛏️',
-  gem:     '💎',
-  mineral: '🪨',
-  fish:    '🐟',
-  geode:   '🪨',
+const TYPE_ICON: Record<string, LucideIcon> = {
+  ore:     Pickaxe,
+  gem:     Gem,
+  mineral: Layers,
+  fish:    FishIcon,
+  geode:   Layers,
 }
 
 function floorPct(floor: number) {
@@ -220,9 +221,9 @@ function ZoneCard({
           )}
         </div>
         <div className="flex gap-1 flex-wrap justify-end">
-          {ores.length > 0    && <span className="text-[10px] bg-cream-dark text-muted px-1.5 py-0.5 rounded">⛏️ {ores.length} ores</span>}
-          {gems.length > 0    && <span className="text-[10px] bg-cream-dark text-muted px-1.5 py-0.5 rounded">💎 {gems.length} gems</span>}
-          {minerals.length > 0 && <span className="text-[10px] bg-cream-dark text-muted px-1.5 py-0.5 rounded">🪨 {minerals.length} minerals</span>}
+          {ores.length > 0     && <span className="flex items-center gap-0.5 text-[10px] bg-cream-dark text-muted px-1.5 py-0.5 rounded"><Pickaxe size={9} />{ores.length} ores</span>}
+          {gems.length > 0     && <span className="flex items-center gap-0.5 text-[10px] bg-cream-dark text-muted px-1.5 py-0.5 rounded"><Gem size={9} />{gems.length} gems</span>}
+          {minerals.length > 0 && <span className="flex items-center gap-0.5 text-[10px] bg-cream-dark text-muted px-1.5 py-0.5 rounded"><Layers size={9} />{minerals.length} minerals</span>}
         </div>
         <span className="text-muted text-sm ml-2">{open ? '▲' : '▼'}</span>
       </button>
@@ -294,7 +295,7 @@ function ItemGroup({ title, items }: { title: string; items: MineZone['items'] }
                 ? <img src={sprite} alt={item.name} width={20} height={20}
                     style={{ imageRendering: 'pixelated' }}
                     referrerPolicy="no-referrer" />
-                : <span className="text-sm w-5 text-center">{TYPE_ICON[item.type]}</span>
+                : (() => { const Icon = TYPE_ICON[item.type]; return Icon ? <Icon size={14} className="text-muted flex-shrink-0" strokeWidth={1.5} /> : null })()
               }
               <span className="text-sm text-ink font-medium flex-1">{item.name}</span>
               <span className={`text-[10px] ${RARITY_COLOR[item.rarity]}`}>{item.rarity}</span>

@@ -5,6 +5,7 @@ import BottomNav from './BottomNav'
 import DateSheet from './DateSheet'
 import { useAppStore } from '../store/useAppStore'
 import { supabase } from '../api/supabase'
+import { Sprout } from 'lucide-react'
 
 const SEASON_TEXT: Record<string, string> = {
   spring: 'text-spring', summer: 'text-summer', fall: 'text-fall', winter: 'text-winter',
@@ -29,7 +30,10 @@ export default function Layout() {
 
         {/* Mobile top bar */}
         <header className="md:hidden sticky top-0 z-30 bg-green flex items-center justify-between px-4 py-3 border-b border-green-light">
-          <h1 className="text-sm font-semibold text-cream">🌾 Stardew</h1>
+          <div className="flex items-center gap-1.5">
+              <Sprout size={15} className="text-cream" strokeWidth={2} />
+              <span className="text-sm font-semibold text-cream">Stardew</span>
+            </div>
           <button
             onClick={() => setShowDateSheet(true)}
             className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-1.5"

@@ -4,6 +4,7 @@ import type { Fish, CaughtFish, Season } from '@shared'
 import { supabase } from '../api/supabase'
 import { useAppStore } from '../store/useAppStore'
 import { useUserId } from '../hooks/useUserId'
+import { Sun, CloudRain, Fish as FishIcon } from 'lucide-react'
 
 type FilterTab = 'current' | Season | 'legendary'
 type WeatherFilter = 'any' | 'sun' | 'rain'
@@ -45,9 +46,9 @@ function difficultyText(d: number) {
   return 'text-red-500'
 }
 
-function weatherIcon(w: Fish['weather']) {
-  if (w === 'sun')  return '☀️'
-  if (w === 'rain') return '🌧️'
+function WeatherIcon({ w }: { w: Fish['weather'] }) {
+  if (w === 'sun')  return <Sun size={11} className="text-summer flex-shrink-0" />
+  if (w === 'rain') return <CloudRain size={11} className="text-winter flex-shrink-0" />
   return null
 }
 
@@ -144,7 +145,8 @@ export default function FishPage() {
   const filteredFish = FISH.filter((f) => {
     if (tab === 'legendary') return f.legendary
     if (tab === 'current')   return f.seasons.includes(currentSeason)
-    if (tab !== 'current' && tab !== 'legendary') return f.seasons.includes(tab as Season)
+    const s = tab as Season
+    if (s === 'spring' || s === 'summer' || s === 'fall' || s === 'winter') return f.seasons.includes(s)
     return true
   }).filter((f) => {
     if (weatherFilter === 'any') return true
@@ -210,7 +212,10 @@ export default function FishPage() {
                 ? 'bg-ink text-cream border-ink'
                 : 'bg-white border-parchment text-muted hover:border-brown-light'
             }`}>
-            {w === 'any' ? 'Any weather' : w === 'sun' ? '☀️ Sunny' : '🌧️ Rainy'}
+            {w === 'any' ? 'Any weather' : w === 'sun'
+            ? <span className="flex items-center gap-1"><Sun size={11} />Sunny</span>
+            : <span className="flex items-center gap-1"><CloudRain size={11} />Rainy</span>
+          }
           </button>
         ))}
         <span className="ml-auto text-xs text-muted self-center">{filteredFish.length} fish</span>
@@ -222,7 +227,6 @@ export default function FishPage() {
         <div className="space-y-2">
           {filteredFish.map((fish) => {
             const done = isCaught(fish.id)
-            const wIcon = weatherIcon(fish.weather)
 
             return (
               <div key={fish.id}
@@ -237,7 +241,7 @@ export default function FishPage() {
                     ? <img src={SPRITES[fish.id]} alt={fish.name}
                         style={{ imageRendering: 'pixelated', width: 40, height: 40 }}
                         referrerPolicy="no-referrer" />
-                    : <span className="text-2xl">🐟</span>
+                    : <FishIcon size={24} className="text-winter/40" strokeWidth={1.25} />
                   }
                 </div>
 
@@ -257,7 +261,7 @@ export default function FishPage() {
                   <p className="text-xs text-muted mt-0.5 truncate">{fish.location}</p>
                   <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                     <span className="text-[11px] text-muted">{fish.time}</span>
-                    {wIcon && <span className="text-[11px]">{wIcon}</span>}
+                    <WeatherIcon w={fish.weather} />
                     {fish.weather === 'any' && <span className="text-[11px] text-muted">Any weather</span>}
                   </div>
                 </div>

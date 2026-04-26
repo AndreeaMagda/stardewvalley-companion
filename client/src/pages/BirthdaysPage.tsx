@@ -5,6 +5,7 @@ import { supabase } from '../api/supabase'
 import { useAppStore } from '../store/useAppStore'
 import { useUserId } from '../hooks/useUserId'
 import { villagerSprite } from '../data/sprites'
+import { Cake } from 'lucide-react'
 
 const SEASON_TABS: Season[] = ['spring', 'summer', 'fall', 'winter']
 
@@ -89,7 +90,7 @@ export default function BirthdaysPage() {
             ? <img src={villagerSprite(todaysBirthday.name)} alt={todaysBirthday.name}
                 width={40} style={{ imageRendering: 'pixelated', flexShrink: 0 }}
                 referrerPolicy="no-referrer" />
-            : <span className="text-3xl">🎂</span>
+            : <div className="w-10 h-10 rounded-full bg-brown/10 flex items-center justify-center flex-shrink-0"><Cake size={20} className="text-brown" strokeWidth={1.5} /></div>
           }
           <div className="flex-1">
             <p className="font-semibold text-ink">It's {todaysBirthday.name}'s birthday today!</p>

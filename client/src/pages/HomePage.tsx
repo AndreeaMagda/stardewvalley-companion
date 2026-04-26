@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import {
   Sprout, Wheat, Building2, Package, Gift,
   CalendarDays, Fish as FishIcon, Pickaxe, BookOpen,
+  Sun, Leaf, Snowflake, type LucideIcon,
 } from 'lucide-react'
 import { VILLAGER_BIRTHDAYS, SEASONAL_EVENTS, FISH } from '@shared'
 import type { Season } from '@shared'
@@ -13,8 +14,8 @@ import { villagerSprite } from '../data/sprites'
 
 const SEASONS: Season[] = ['spring', 'summer', 'fall', 'winter']
 
-const SEASON_ICON: Record<Season, string> = {
-  spring: '🌸', summer: '☀️', fall: '🍂', winter: '❄️',
+const SEASON_ICON: Record<Season, LucideIcon> = {
+  spring: Sprout, summer: Sun, fall: Leaf, winter: Snowflake,
 }
 
 const SEASON_STYLE: Record<Season, {
@@ -101,7 +102,7 @@ export default function HomePage() {
           <div>
             {hi && <p className="text-xs text-muted mb-1">{hi}</p>}
             <div className="flex items-center gap-2.5">
-              <span className="text-2xl">{SEASON_ICON[currentSeason]}</span>
+              {(() => { const Icon = SEASON_ICON[currentSeason]; return <Icon size={26} className={s.text} strokeWidth={1.5} /> })()}
               <h1 className={`text-3xl font-bold capitalize ${s.text}`}>{currentSeason}</h1>
             </div>
             <p className="text-base text-ink font-medium mt-0.5">
@@ -149,7 +150,7 @@ export default function HomePage() {
                 )}
                 <div>
                   <p className="text-sm font-semibold text-ink leading-tight">{todayBirthday.name}</p>
-                  <p className="text-[11px] text-brown font-medium">Today! 🎂</p>
+                  <p className="text-[11px] text-brown font-medium">Today!</p>
                 </div>
               </div>
             ) : upcomingBirthday ? (

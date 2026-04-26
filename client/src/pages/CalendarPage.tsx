@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { VILLAGER_BIRTHDAYS, SEASONAL_EVENTS } from '@shared'
 import type { Season } from '@shared'
 import { useAppStore } from '../store/useAppStore'
+import { Star, Gift } from 'lucide-react'
 
 const SEASONS: Season[] = ['spring', 'summer', 'fall', 'winter']
 
@@ -46,7 +47,7 @@ export default function CalendarPage() {
           {upcomingEvents.map((e) => (
             <div key={e.name} className={`flex items-center gap-3 px-4 py-3 rounded-2xl flex-1 min-w-48 ${style.soft}`}
               style={{ boxShadow: 'var(--shadow-card)' }}>
-              <span className="text-2xl">🎪</span>
+              <div className="w-9 h-9 rounded-xl bg-brown/10 flex items-center justify-center flex-shrink-0"><Star size={16} className="text-brown" strokeWidth={1.75} /></div>
               <div>
                 <p className={`text-sm font-semibold ${style.text}`}>{e.name}</p>
                 <p className="text-xs text-muted">Day {e.day} · {e.day - currentDay === 0 ? 'Today!' : `in ${e.day - currentDay} day${e.day - currentDay > 1 ? 's' : ''}`}</p>
@@ -94,7 +95,7 @@ export default function CalendarPage() {
                   {event && (
                     <div className="bg-brown/10 text-brown rounded px-1 py-0.5 mb-0.5 leading-tight truncate text-[10px] font-medium"
                       title={event.description}>
-                      🎪 {event.name.split(' ')[0]}
+                      {event.name.split(' ')[0]}
                     </div>
                   )}
 
@@ -103,7 +104,7 @@ export default function CalendarPage() {
                     <div key={b.name}
                       className={`${style.soft} ${style.text} rounded px-1 py-0.5 mb-0.5 leading-tight truncate text-[10px] font-medium`}
                       title={`${b.name}'s birthday · Loves: ${b.lovedGifts.slice(0,3).join(', ')}`}>
-                      🎂 {b.name}
+                      {b.name}
                     </div>
                   ))}
                 </div>
@@ -117,7 +118,7 @@ export default function CalendarPage() {
 
           {/* Festivals */}
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted mb-3">🎪 Festivals</p>
+            <p className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted mb-3"><Star size={11} strokeWidth={1.75} />Festivals</p>
             <div className="space-y-2">
               {events.length === 0
                 ? <p className="text-xs text-muted">No festivals this season.</p>
@@ -137,7 +138,7 @@ export default function CalendarPage() {
 
           {/* Birthdays list */}
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted mb-3">🎂 Birthdays</p>
+            <p className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted mb-3"><Gift size={11} strokeWidth={1.75} />Birthdays</p>
             <div className="space-y-1.5">
               {birthdays.sort((a, b) => a.day - b.day).map((v) => (
                 <div key={v.name}
@@ -157,9 +158,9 @@ export default function CalendarPage() {
 
       {/* Legend */}
       <div className="mt-6 flex gap-6 text-xs text-muted pt-4 border-t border-parchment">
-        <span className="flex items-center gap-1.5">🎪 <span className="text-brown font-medium">Festival</span> — brown</span>
-        <span className="flex items-center gap-1.5">🎂 <span className={`font-medium ${style.text}`}>Birthday</span> — season color</span>
-        <span className="flex items-center gap-1.5">◀ Today</span>
+        <span className="flex items-center gap-1.5"><Star size={11} className="text-brown" /><span className="text-brown font-medium">Festival</span></span>
+        <span className="flex items-center gap-1.5"><Gift size={11} className={style.text} /><span className={`font-medium ${style.text}`}>Birthday</span></span>
+        <span className="flex items-center gap-1.5 text-muted">◀ Today</span>
       </div>
     </div>
   )

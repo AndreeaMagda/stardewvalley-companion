@@ -5,6 +5,7 @@ import { supabase } from '../api/supabase'
 import { useAppStore } from '../store/useAppStore'
 import { useUserId } from '../hooks/useUserId'
 import { cropSprite } from '../data/sprites'
+import { Wheat, Sprout, Snowflake } from 'lucide-react'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -169,7 +170,7 @@ export default function GardenPage() {
       {toast && (
         <div className="fixed top-6 right-6 z-50">
           <div className="bg-green text-cream rounded-2xl px-5 py-4 shadow-xl max-w-xs" style={{ boxShadow: 'var(--shadow-card-hover)' }}>
-            <p className="font-semibold text-sm mb-1">🌾 Ready to harvest!</p>
+            <p className="font-semibold text-sm mb-1 flex items-center gap-1.5"><Wheat size={14} />Ready to harvest!</p>
             {toast.names.map((name) => <p key={name} className="text-sm opacity-90">· {name}</p>)}
             <button onClick={() => setToast(null)} className="mt-3 text-xs opacity-60 hover:opacity-100 transition-opacity">Dismiss</button>
           </div>
@@ -247,7 +248,7 @@ export default function GardenPage() {
 
           {currentSeason === 'winter' ? (
             <div className="bg-cream-dark rounded-xl p-6 text-center">
-              <p className="text-xl mb-1">❄️</p>
+              <Snowflake size={22} className="text-winter mx-auto mb-2" strokeWidth={1.5} />
               <p className="text-muted text-sm">Nothing grows outdoors in Winter.</p>
             </div>
           ) : plantable.length === 0 ? (
@@ -375,8 +376,8 @@ export default function GardenPage() {
           <div>
             <h3 className="text-base font-semibold text-ink">Your plants</h3>
             {readyNow > 0 && (
-              <p className={`text-xs font-medium mt-0.5 ${style.text}`}>
-                🌾 {readyNow} crop{readyNow > 1 ? 's' : ''} ready to harvest
+              <p className={`text-xs font-medium mt-0.5 flex items-center gap-1 ${style.text}`}>
+                <Wheat size={12} />{readyNow} crop{readyNow > 1 ? 's' : ''} ready to harvest
               </p>
             )}
           </div>
@@ -395,7 +396,7 @@ export default function GardenPage() {
           <p className="text-muted text-sm">Loading…</p>
         ) : active.length === 0 && archived.length === 0 ? (
           <div className="bg-cream-dark rounded-2xl p-10 text-center">
-            <p className="text-3xl mb-3">🌱</p>
+            <Sprout size={32} className="text-green/40 mx-auto mb-3" strokeWidth={1.25} />
             <p className="text-muted text-sm">Nothing logged yet.<br />Hit "Plant" on a crop above to start tracking.</p>
           </div>
         ) : (
@@ -422,7 +423,7 @@ export default function GardenPage() {
                           info?.ready ? 'bg-green' : info && info.progress >= 70 ? 'bg-spring/20' : info && info.progress >= 35 ? 'bg-summer/20' : 'bg-cream-dark'
                         }`}>
                           {info?.ready ? (
-                            <span className="text-2xl">🌾</span>
+                            <Wheat size={22} className="text-cream" strokeWidth={1.5} />
                           ) : (
                             <>
                               <span className={`text-xl font-bold leading-none ${info && info.progress >= 70 ? 'text-spring' : info && info.progress >= 35 ? 'text-summer' : 'text-ink'}`}>

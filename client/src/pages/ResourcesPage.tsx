@@ -3,10 +3,11 @@ import type { Resource } from '@shared'
 import { supabase } from '../api/supabase'
 import { useUserId } from '../hooks/useUserId'
 import { resourceSprite } from '../data/sprites'
+import { Layers, Pickaxe, Sprout, Shield, type LucideIcon } from 'lucide-react'
 
-const RESOURCE_GROUPS: { label: string; icon: string; items: { name: string; hint: string }[] }[] = [
+const RESOURCE_GROUPS: { label: string; Icon: LucideIcon; items: { name: string; hint: string }[] }[] = [
   {
-    label: 'Basic Materials', icon: '🪵',
+    label: 'Basic Materials', Icon: Layers,
     items: [
       { name: 'Wood',      hint: 'Chop trees on your farm' },
       { name: 'Stone',     hint: 'Mine rocks and the Mines' },
@@ -16,7 +17,7 @@ const RESOURCE_GROUPS: { label: string; icon: string; items: { name: string; hin
     ],
   },
   {
-    label: 'Ores & Bars', icon: '⛏️',
+    label: 'Ores & Bars', Icon: Pickaxe,
     items: [
       { name: 'Coal',       hint: 'Mines floors 40–80' },
       { name: 'Copper Ore', hint: 'Mines floors 1–39' },
@@ -26,7 +27,7 @@ const RESOURCE_GROUPS: { label: string; icon: string; items: { name: string; hin
     ],
   },
   {
-    label: 'Farming Supplies', icon: '🌱',
+    label: 'Farming Supplies', Icon: Sprout,
     items: [
       { name: 'Mixed Seeds',        hint: 'Dropped by weeds' },
       { name: 'Basic Fertilizer',   hint: 'Crafted from Sap ×2' },
@@ -35,7 +36,7 @@ const RESOURCE_GROUPS: { label: string; icon: string; items: { name: string; hin
     ],
   },
   {
-    label: 'Combat & Fishing', icon: '⚔️',
+    label: 'Combat & Fishing', Icon: Shield,
     items: [
       { name: 'Bait',        hint: 'Crafted from Bug Meat' },
       { name: 'Bomb',        hint: 'Crafted from Iron Ore ×4 + Coal ×1' },
@@ -123,13 +124,13 @@ export default function ResourcesPage() {
         <p className="text-muted text-sm">Loading…</p>
       ) : (
         <div className="space-y-8">
-          {RESOURCE_GROUPS.map((group) => (
-            <section key={group.label}>
+          {RESOURCE_GROUPS.map(({ label, Icon, items }) => (
+            <section key={label}>
               <p className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted mb-3">
-                <span>{group.icon}</span>{group.label}
+                <Icon size={12} strokeWidth={1.75} />{label}
               </p>
               <div className="space-y-2">
-                {group.items.map(({ name, hint }) => {
+                {items.map(({ name, hint }) => {
                   const qty = getResource(name)?.quantity ?? 0
                   return (
                     <div key={name}
