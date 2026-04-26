@@ -4,6 +4,7 @@ import {
   Sprout, Wheat, Building2, Package, Gift,
   CalendarDays, Fish as FishIcon, Pickaxe, BookOpen,
   Sun, Leaf, Snowflake, CalendarCheck, type LucideIcon,
+  TreeDeciduous,
 } from 'lucide-react'
 import { VILLAGER_BIRTHDAYS, SEASONAL_EVENTS, FISH } from '@shared'
 import type { Season } from '@shared'
@@ -36,8 +37,9 @@ const NAV_CARDS = [
   { to: '/birthdays', label: 'Birthdays', Icon: Gift,         desc: 'Never miss a gift day'           },
   { to: '/calendar',  label: 'Calendar',  Icon: CalendarDays, desc: 'Seasonal events & festivals'     },
   { to: '/fish',      label: 'Fish',      Icon: FishIcon,     desc: 'Catch tracker & locations'       },
-  { to: '/mining',    label: 'Mining',    Icon: Pickaxe,      desc: 'Mine floors & ore guide'         },
-  { to: '/tips',      label: 'Tips',      Icon: BookOpen,     desc: 'Tips for new farmers'            },
+  { to: '/mining',    label: 'Mining',    Icon: Pickaxe,        desc: 'Mine floors & ore guide'         },
+  { to: '/foraging',  label: 'Foraging',  Icon: TreeDeciduous, desc: 'Wild items, locations & prices'  },
+  { to: '/tips',      label: 'Tips',      Icon: BookOpen,       desc: 'Tips for new farmers'            },
 ]
 
 function greeting(name: string | null) {

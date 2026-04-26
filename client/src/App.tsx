@@ -12,6 +12,7 @@ import CalendarPage from './pages/CalendarPage'
 import BundlesPage from './pages/BundlesPage'
 import FishPage from './pages/FishPage'
 import MiningPage from './pages/MiningPage'
+import ForagingPage from './pages/ForagingPage'
 import { useAuth } from './hooks/useAuth'
 import { useAppStore } from './store/useAppStore'
 
@@ -30,6 +31,7 @@ const router = createBrowserRouter([
       { path: 'calendar',  element: <CalendarPage /> },
       { path: 'fish',      element: <FishPage /> },
       { path: 'mining',    element: <MiningPage /> },
+      { path: 'foraging',  element: <ForagingPage /> },
       { path: 'tips',      element: <TipsPage /> },
     ],
   },
