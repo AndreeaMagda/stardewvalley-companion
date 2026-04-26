@@ -51,9 +51,9 @@ export default function Sidebar() {
   return (
     <aside className="w-56 min-h-screen flex flex-col bg-green" style={{ borderRight: '1px solid rgba(255,255,255,0.07)' }}>
 
-      {/* Brand */}
-      <div className="px-5 pt-7 pb-6">
-        <div className="flex items-center gap-2.5">
+      {/* Brand + user */}
+      <div className="px-5 pt-7 pb-5">
+        <div className="flex items-center gap-2.5 mb-4">
           <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
             <Sprout size={16} className="text-cream" />
           </div>
@@ -62,6 +62,34 @@ export default function Sidebar() {
             <p className="text-green-pale/50 text-[11px] leading-tight">Companion</p>
           </div>
         </div>
+
+        {userId ? (
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              {userAvatar
+                ? <img src={userAvatar} alt={userName ?? ''} width={24} height={24} className="rounded-full flex-shrink-0" />
+                : <div className="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center flex-shrink-0 text-[10px] text-cream font-medium">
+                    {userName?.[0] ?? '?'}
+                  </div>
+              }
+              <span className="text-xs text-green-pale/60 truncate">{userName ?? 'Player'}</span>
+            </div>
+            <button
+              onClick={() => supabase.auth.signOut()}
+              title="Sign out"
+              className="text-green-pale/30 hover:text-green-pale/60 transition-colors flex-shrink-0"
+            >
+              <LogOut size={13} />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })}
+            className="w-full flex items-center justify-center gap-2 text-xs bg-white/10 hover:bg-white/20 transition-colors text-cream py-2 rounded-xl font-medium"
+          >
+            Sign in with Google
+          </button>
+        )}
       </div>
 
       {/* Nav */}
@@ -148,36 +176,6 @@ export default function Sidebar() {
         </p>
       </div>
 
-      {/* User + sign out */}
-      <div className="px-3 mb-4 space-y-1">
-        {userId ? (
-          <>
-            <div className="flex items-center gap-2.5 px-3 py-2">
-              {userAvatar
-                ? <img src={userAvatar} alt={userName ?? ''} width={28} height={28} className="rounded-full flex-shrink-0" />
-                : <div className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center flex-shrink-0 text-xs text-cream font-medium">
-                    {userName?.[0] ?? '?'}
-                  </div>
-              }
-              <span className="text-xs text-green-pale/70 truncate">{userName ?? 'Player'}</span>
-            </div>
-            <button
-              onClick={() => supabase.auth.signOut()}
-              className="w-full flex items-center justify-center gap-2 text-xs text-green-pale/40 hover:text-green-pale/70 transition-colors py-2 rounded-xl hover:bg-white/5"
-            >
-              <LogOut size={13} />
-              Sign out
-            </button>
-          </>
-        ) : (
-          <button
-            onClick={() => supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })}
-            className="w-full flex items-center justify-center gap-2 text-xs bg-white/10 hover:bg-white/20 transition-colors text-cream py-2.5 rounded-xl font-medium"
-          >
-            Sign in with Google
-          </button>
-        )}
-      </div>
 
     </aside>
   )
