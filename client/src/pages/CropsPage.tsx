@@ -38,8 +38,15 @@ function bestValue(crop: Crop): number {
 }
 
 function profitPerDay(crop: Crop): number {
-  if (!crop.growDays) return 0
-  return Math.round((crop.sellPrice - crop.seedCost / 4) / crop.growDays)
+  const SEASON_DAYS = 28
+  if (!crop.growDays || crop.growDays > SEASON_DAYS) return 0
+  let harvests: number
+  if (crop.regrowDays) {
+    harvests = 1 + Math.floor((SEASON_DAYS - crop.growDays) / crop.regrowDays)
+  } else {
+    harvests = Math.floor(SEASON_DAYS / crop.growDays)
+  }
+  return Math.max(0, Math.round((crop.sellPrice * harvests - crop.seedCost) / SEASON_DAYS))
 }
 
 export default function CropsPage() {
