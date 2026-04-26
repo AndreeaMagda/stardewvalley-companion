@@ -8,20 +8,35 @@ import { useAppStore } from '../store/useAppStore'
 import type { Season } from '@shared'
 import { supabase } from '../api/supabase'
 
-const NAV = [
-  { to: '/today',     label: 'Today',     Icon: CalendarCheck },
-  { to: '/garden',    label: 'Garden',    Icon: Sprout     },
-  { to: '/crops',     label: 'Crops',     Icon: Wheat      },
-  { to: '/bundles',   label: 'Bundles',   Icon: Building2  },
-  { to: '/resources', label: 'Resources', Icon: Package    },
-  { to: '/birthdays', label: 'Birthdays', Icon: Gift       },
-  { to: '/calendar',  label: 'Calendar',  Icon: CalendarDays },
-  { to: '/fish',      label: 'Fish',      Icon: Fish       },
-  { to: '/mining',    label: 'Mining',    Icon: Pickaxe    },
-  { to: '/foraging',  label: 'Foraging',  Icon: Leaf       },
-  { to: '/gifts',     label: 'Gifts',     Icon: Heart      },
-  { to: '/cooking',   label: 'Cooking',   Icon: ChefHat    },
-  { to: '/tips',      label: 'Tips',      Icon: BookOpen   },
+const NAV_GROUPS = [
+  {
+    label: null,
+    items: [
+      { to: '/today',     label: 'Today',     Icon: CalendarCheck },
+    ],
+  },
+  {
+    label: 'Track',
+    items: [
+      { to: '/garden',    label: 'Garden',    Icon: Sprout     },
+      { to: '/bundles',   label: 'Bundles',   Icon: Building2  },
+      { to: '/resources', label: 'Resources', Icon: Package    },
+      { to: '/birthdays', label: 'Birthdays', Icon: Gift       },
+    ],
+  },
+  {
+    label: 'Guide',
+    items: [
+      { to: '/crops',    label: 'Crops',    Icon: Wheat      },
+      { to: '/fish',     label: 'Fish',     Icon: Fish       },
+      { to: '/mining',   label: 'Mining',   Icon: Pickaxe    },
+      { to: '/foraging', label: 'Foraging', Icon: Leaf       },
+      { to: '/gifts',    label: 'Gifts',    Icon: Heart      },
+      { to: '/cooking',  label: 'Cooking',  Icon: ChefHat    },
+      { to: '/calendar', label: 'Calendar', Icon: CalendarDays },
+      { to: '/tips',     label: 'Tips',     Icon: BookOpen   },
+    ],
+  },
 ]
 
 const SEASONS: Season[] = ['spring', 'summer', 'fall', 'winter']
@@ -50,26 +65,37 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 space-y-0.5">
-        {NAV.map(({ to, label, Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                isActive
-                  ? 'bg-white/15 text-cream font-medium shadow-sm'
-                  : 'text-green-pale/60 hover:text-cream hover:bg-white/8'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <Icon size={16} className={isActive ? 'text-cream' : 'text-green-pale/50'} strokeWidth={isActive ? 2.5 : 1.75} />
-                {label}
-              </>
+      <nav className="flex-1 px-3 overflow-y-auto">
+        {NAV_GROUPS.map((group, gi) => (
+          <div key={gi} className={gi > 0 ? 'mt-4' : ''}>
+            {group.label && (
+              <p className="text-[9px] uppercase tracking-widest text-green-pale/30 px-3 mb-1">
+                {group.label}
+              </p>
             )}
-          </NavLink>
+            <div className="space-y-0.5">
+              {group.items.map(({ to, label, Icon }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
+                      isActive
+                        ? 'bg-white/15 text-cream font-medium shadow-sm'
+                        : 'text-green-pale/60 hover:text-cream hover:bg-white/8'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <Icon size={16} className={isActive ? 'text-cream' : 'text-green-pale/50'} strokeWidth={isActive ? 2.5 : 1.75} />
+                      {label}
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
 
